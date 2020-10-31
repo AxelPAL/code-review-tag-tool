@@ -1,0 +1,11 @@
+parameters:
+  level: 7
+  fileExtensions:
+    - php
+  autoload_files:
+    - vendor/autoload.php
+  excludes_analyse:
+    - tests
+    - vendor
+    - */*.blade.php
+    - storage

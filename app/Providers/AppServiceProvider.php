@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Cache;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        if (Cache::has('BITBUCKET_TOKEN')) {
+            config(['bitbucket.connections.main.token' => Cache::get('BITBUCKET_TOKEN')]);
+        }
     }
 }
