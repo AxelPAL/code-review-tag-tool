@@ -8,7 +8,8 @@ use Cache;
 use GrahamCampbell\Bitbucket\BitbucketManager;
 use Http;
 use Http\Client\Exception;
-use Psr\SimpleCache\InvalidArgumentException;
+use Log;
+use Psr\Log\InvalidArgumentException;
 
 class BitbucketService
 {
@@ -84,7 +85,6 @@ class BitbucketService
     /**
      * @param string $code
      * @return bool
-     * @throws InvalidArgumentException
      */
     public function getAndSaveOAuthAccessToken(string $code): bool
     {
@@ -101,7 +101,11 @@ class BitbucketService
         $data = $response->json();
         if (isset($data['access_token'])) {
             config(['bitbucket.connections.main.token' => $data['access_token']]);
-            $result = $this->cache::set('BITBUCKET_TOKEN', $data['access_token'], $data['expires_in']);
+            try {
+                $result = $this->cache::set('BITBUCKET_TOKEN', $data['access_token'], $data['expires_in']);
+            } catch (\Psr\SimpleCache\InvalidArgumentException $e) {
+                Log::warning($e->getMessage());
+            }
         }
         return $result;
     }

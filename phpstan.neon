@@ -1,11 +1,21 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+
 parameters:
-  level: 7
-  fileExtensions:
-    - php
-  autoload_files:
-    - vendor/autoload.php
-  excludes_analyse:
-    - tests
-    - vendor
-    - */*.blade.php
-    - storage
+
+    paths:
+        - app
+
+    # The level 8 is the highest level
+    level: 8
+
+    excludes_analyse:
+        - ./*/*/FileToBeExcluded.php
+        - tests
+        - vendor
+        - */*.blade.php
+        - storage
+        - _ide_helper.php
+        - routes/console.php
+
+    checkMissingIterableValueType: false

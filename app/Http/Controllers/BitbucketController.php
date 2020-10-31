@@ -43,7 +43,7 @@ class BitbucketController extends Controller
      * @param string $account
      * @param string $repo
      * @param int $pullRequestId
-     * @return RedirectResponse
+     * @return Application|Factory|RedirectResponse|View
      * @throws Exception
      * @throws JsonException
      */
@@ -68,6 +68,8 @@ class BitbucketController extends Controller
         $pullRequests = $this->bitbucketService->getAllActivePullRequests();
         dump($pullRequests);
         /** get pull requests */
+
+        return view('test');
     }
 
     public function auth(): RedirectResponse
@@ -78,7 +80,6 @@ class BitbucketController extends Controller
     /**
      * @param Request $request
      * @return RedirectResponse
-     * @throws InvalidArgumentException
      */
     public function receiveOAuthCode(Request $request): RedirectResponse
     {
