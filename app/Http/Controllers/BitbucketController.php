@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\BitbucketService;
 use App\Services\BitbucketUsersService;
+use Cache;
 use Http\Client\Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -11,7 +12,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use JsonException;
-use Psr\SimpleCache\InvalidArgumentException;
 
 class BitbucketController extends Controller
 {
@@ -40,36 +40,58 @@ class BitbucketController extends Controller
     }
 
     /**
-     * @param string $account
-     * @param string $repo
-     * @param int $pullRequestId
+     * @return Application|Factory|\Illuminate\Contracts\View\View|RedirectResponse
+     * @throws Exception
+     */
+    public function workspaces()
+    {
+        $workspaces = $this->bitbucketService->getAvailableWorkspaces();
+
+        return view('workspaces', compact('workspaces'));
+    }
+
+    /**
+     * @param string $workspace
      * @return Application|Factory|RedirectResponse|View
      * @throws Exception
-     * @throws JsonException
      */
-    public function test(string $account, string $repo, int $pullRequestId)
+    public function repositories(string $workspace)
     {
-        if (empty(config('bitbucket.connections.main.token'))) {
-            return redirect()->route('auth');
-        }
-        $this->bitbucketService->init($account, $repo);
-        /** pull request author and date info */
-        $pullRequestData = $this->bitbucketService->getPullRequestData($pullRequestId);
-        dump($pullRequestData['author'], $pullRequestData['created_on']);
-        $this->bitbucketUsersService->createIfNotExistsFromRequest($pullRequestData);
-        /** pull request author and date info */
+        $repositories = $this->bitbucketService->getAvailableRepositories($workspace);
 
-        /** get all comments of the pull request */
-        $comments = $this->bitbucketService->getAllCommentsOfPullRequest($pullRequestId);
-        dump($comments);
-        /** get all comments of the pull request */
+        return view('repositories', compact('repositories', 'workspace'));
+    }
 
-        /** get pull requests */
-        $pullRequests = $this->bitbucketService->getAllActivePullRequests();
-        dump($pullRequests);
-        /** get pull requests */
+    /**
+     * @param string $workspace
+     * @param string $repository
+     * @return Application|Factory|\Illuminate\Contracts\View\View|RedirectResponse
+     * @throws Exception
+     */
+    public function pullRequests(string $workspace, string $repository)
+    {
+        $cacheKey = $workspace . $repository;
+        $pullRequests = Cache::remember(
+            $cacheKey,
+            3600,
+            fn() => $this->bitbucketService->getPullRequests($workspace, $repository)
+        );
 
-        return view('test');
+        return view('pullRequests', compact('pullRequests', 'workspace', 'repository'));
+    }
+
+    /**
+     * @param string $workspace
+     * @param string $repository
+     * @param int $pullRequestId
+     * @return Application|Factory|\Illuminate\Contracts\View\View
+     * @throws Exception
+     */
+    public function comments(string $workspace, string $repository, int $pullRequestId)
+    {
+        $comments = $this->bitbucketService->getAllCommentsOfPullRequest($workspace, $repository, $pullRequestId);
+
+        return view('comments', compact('comments', 'pullRequestId'));
     }
 
     public function auth(): RedirectResponse
@@ -85,7 +107,7 @@ class BitbucketController extends Controller
     {
         $redirectRoute = 'auth';
         if ($this->bitbucketService->getAndSaveOAuthAccessToken($request->get('code'))) {
-            $redirectRoute = 'root';
+            $redirectRoute = 'dashboard';
         }
         return redirect()->route($redirectRoute);
     }

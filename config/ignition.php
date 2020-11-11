@@ -35,7 +35,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | You can share local errors with colleagues or others around the world.
-    | Sharing is completely free and doesn't require an account on Flare.
+    | Sharing is completely free and doesn't require an workspace on Flare.
     |
     | If necessary, you can completely disable sharing below.
     |
