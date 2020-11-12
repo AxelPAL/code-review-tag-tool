@@ -18,6 +18,8 @@ use Illuminate\Support\Carbon;
  * @property int $pull_request_id
  * @property string $repository_created_at
  * @property string $repository_updated_at
+ * @property int $remote_id
+ * @property int|null $parent_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|Comment newModelQuery()
@@ -32,6 +34,8 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Comment whereRepositoryUpdatedAt($value)
  * @method static Builder|Comment whereUpdatedAt($value)
  * @method static Builder|Comment whereWebLink($value)
+ * @method static Builder|Comment whereRemoteId($value)
+ * @method static Builder|Comment whereParentId($value)
  * @mixin Eloquent
  */
 class Comment extends Model

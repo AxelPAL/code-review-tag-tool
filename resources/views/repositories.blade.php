@@ -11,7 +11,7 @@
                 <ul class="common-list list-disc">
                     @foreach($repositories as $repository => $name)
                         <li>
-                            <a href="{{route('pullRequests', ['workspace' => $workspace, 'repository' => $repository])}}">{{$name}}</a>
+                            <a href="{{route('pullRequest', ['workspace' => $workspace, 'repository' => $repository])}}">{{$name}}</a>
                         </li>
                     @endforeach
                 </ul>

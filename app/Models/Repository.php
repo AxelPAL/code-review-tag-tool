@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @property string $workspace
  * @property string $slug
  * @property string $language
+ * @property string $uuid
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|Repository newModelQuery()
@@ -32,6 +33,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Repository whereUpdatedAt($value)
  * @method static Builder|Repository whereWebLink($value)
  * @method static Builder|Repository whereWorkspace($value)
+ * @method static Builder|Repository whereUuid($value)
  * @mixin Eloquent
  */
 class Repository extends Model

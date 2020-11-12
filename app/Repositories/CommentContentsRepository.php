@@ -10,4 +10,9 @@ class CommentContentsRepository
     {
         return $commentContent->save();
     }
+
+    public function findByCommentId(int $id): ?CommentContent
+    {
+        return CommentContent::whereCommentId($id)->first();
+    }
 }

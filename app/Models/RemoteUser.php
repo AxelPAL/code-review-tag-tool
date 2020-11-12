@@ -17,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property string $web_link
  * @property string $nickname
  * @property string $account_id
+ * @property string $avatar
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|RemoteUser newModelQuery()
@@ -30,6 +31,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|RemoteUser whereUpdatedAt($value)
  * @method static Builder|RemoteUser whereUuid($value)
  * @method static Builder|RemoteUser whereWebLink($value)
+ * @method static Builder|RemoteUser whereAvatar($value)
  * @mixin Eloquent
  */
 class RemoteUser extends Model

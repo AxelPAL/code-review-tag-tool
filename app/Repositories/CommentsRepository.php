@@ -10,4 +10,9 @@ class CommentsRepository
     {
         return $comment->save();
     }
+
+    public function findById(int $id): ?Comment
+    {
+        return Comment::whereRemoteId($id)->first();
+    }
 }

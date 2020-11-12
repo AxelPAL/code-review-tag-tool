@@ -1,8 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Domain;
+namespace App\Services;
 
+use App\Factories\EntitiesFromBitbucketFactory;
+use App\Models\PullRequest;
 use Bitbucket\Api\ApiInterface;
 use Bitbucket\ResultPager;
 use Cache;
@@ -15,21 +17,18 @@ use Log;
 class BitbucketService
 {
 
-    private string $workspace;
-    private string $repo;
     private BitbucketManager $bitbucket;
     private Cache $cache;
+    private EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory;
 
-    public function __construct(BitbucketManager $bitbucket, Cache $cache)
-    {
+    public function __construct(
+        BitbucketManager $bitbucket,
+        Cache $cache,
+        EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory
+    ) {
         $this->bitbucket = $bitbucket;
         $this->cache = $cache;
-    }
-
-    public function init(string $workspace, string $repo): void
-    {
-        $this->workspace = $workspace;
-        $this->repo = $repo;
+        $this->entitiesFromBitbucketFactory = $entitiesFromBitbucketFactory;
     }
 
     /**
@@ -42,10 +41,24 @@ class BitbucketService
         $repositories = [];
         $query = $this->bitbucket->repositories()->workspaces($workspace);
         foreach ($this->getAllListPages($query) as $repository) {
+            $this->entitiesFromBitbucketFactory->createRepositoryIfNotExists($repository);
             $repositories[$repository['slug']] = $repository['name'];
         }
 
         return $repositories;
+    }
+
+    /**
+     * @param ApiInterface $query
+     * @param array $params
+     * @return Generator
+     * @throws Exception
+     */
+    protected function getAllListPages(ApiInterface $query, array $params = []): Generator
+    {
+        $client = $this->bitbucket->connection($this->bitbucket->getDefaultConnection());
+        $paginator = new ResultPager($client);
+        return $paginator->fetchAllLazy($query, 'list', [$params]);
     }
 
     /**
@@ -70,17 +83,41 @@ class BitbucketService
      */
     public function getPullRequests(string $workspace, string $repository): array
     {
-        $pullRequests = [];
         $states = [
-            'OPEN',
-            'MERGED',
+            PullRequest::OPEN_STATE,
+            PullRequest::MERGED_STATE,
         ];
+        return $this->getPullRequestsByStates($workspace, $repository, $states);
+    }
+
+    /**
+     * @param string $workspace
+     * @param string $repository
+     * @return array
+     * @throws Exception
+     */
+    public function getActivePullRequests(string $workspace, string $repository): array
+    {
+        return $this->getPullRequestsByStates($workspace, $repository, [PullRequest::OPEN_STATE]);
+    }
+
+    /**
+     * @param string $workspace
+     * @param string $repository
+     * @param array $states
+     * @return array
+     * @throws Exception
+     */
+    protected function getPullRequestsByStates(string $workspace, string $repository, array $states): array
+    {
+        $pullRequests = [];
         foreach ($states as $state) {
             $query = $this->bitbucket->repositories()
                 ->workspaces($workspace)
                 ->pullRequests($repository);
-            foreach ($this->getAllListPages($query, ['state' => $state]) as $repo) {
-                $pullRequests[] = $repo;
+            foreach ($this->getAllListPages($query, ['state' => $state]) as $pullRequest) {
+                $this->entitiesFromBitbucketFactory->createPullRequestIfNotExists($pullRequest);
+                $pullRequests[] = $pullRequest;
             }
         }
 
@@ -88,15 +125,17 @@ class BitbucketService
     }
 
     /**
+     * @param string $workspace
+     * @param string $repository
      * @param int $pullRequestId
      * @return array
      * @throws Exception
      */
-    public function getPullRequestData(int $pullRequestId): array
+    public function getPullRequestData(string $workspace, string $repository, int $pullRequestId): array
     {
         return $this->bitbucket->repositories()
-            ->workspaces($this->workspace)
-            ->pullRequests($this->repo)
+            ->workspaces($workspace)
+            ->pullRequests($repository)
             ->show((string)$pullRequestId);
     }
 
@@ -114,19 +153,6 @@ class BitbucketService
             ->pullRequests($repository)
             ->comments((string)$pullRequestId);
         return $this->getAllListPages($commentsClient);
-    }
-
-    /**
-     * @param ApiInterface $query
-     * @param array $params
-     * @return Generator
-     * @throws Exception
-     */
-    protected function getAllListPages(ApiInterface $query, array $params = []): Generator
-    {
-        $client = $this->bitbucket->connection($this->bitbucket->getDefaultConnection());
-        $paginator = new ResultPager($client);
-        return $paginator->fetchAllLazy($query, 'list', [$params]);
     }
 
     public function getOAuthCodeUrl(): string

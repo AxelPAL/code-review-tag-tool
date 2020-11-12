@@ -75,7 +75,7 @@ class Kernel extends HttpKernel
      *
      * @var array
      */
-    protected array $routeMiddleware = [
+    protected $routeMiddleware = [
         'auth'             => Authenticate::class,
         'auth.basic'       => AuthenticateWithBasicAuth::class,
         'bindings'         => SubstituteBindings::class,

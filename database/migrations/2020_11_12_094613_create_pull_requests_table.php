@@ -26,7 +26,7 @@ class CreatePullRequestsTable extends Migration
             $table->integer('comment_count');
             $table->string('state');
             $table->foreignId('remote_author_id')->constrained('remote_users');
-            $table->foreignId('closed_by_remote_user_id')->constrained('remote_users');
+            $table->foreignId('closed_by_remote_user_id')->nullable()->constrained('remote_users');
             $table->timestamps();
 
         });

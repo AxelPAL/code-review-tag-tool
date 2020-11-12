@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\BitbucketService;
+use App\Services\BitbucketService;
 use App\Services\BitbucketUsersService;
 use Cache;
 use Http\Client\Exception;

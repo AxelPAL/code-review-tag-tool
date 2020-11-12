@@ -24,6 +24,7 @@ use Illuminate\Support\Carbon;
  * @property string $state
  * @property int $remote_author_id
  * @property int $closed_by_remote_user_id
+ * @property int $repository_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|PullRequest newModelQuery()
@@ -44,9 +45,13 @@ use Illuminate\Support\Carbon;
  * @method static Builder|PullRequest whereTitle($value)
  * @method static Builder|PullRequest whereUpdatedAt($value)
  * @method static Builder|PullRequest whereWebLink($value)
+ * @method static Builder|PullRequest whereRepositoryId($value)
  * @mixin Eloquent
  */
 class PullRequest extends Model
 {
+    public const OPEN_STATE = 'OPEN';
+    public const MERGED_STATE = 'MERGED';
+
     use HasFactory;
 }
