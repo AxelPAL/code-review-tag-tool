@@ -11,7 +11,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use JsonException;
 
 class BitbucketController extends Controller
 {
@@ -22,12 +21,10 @@ class BitbucketController extends Controller
     /**
      * @var BitbucketUsersService
      */
-    private BitbucketUsersService $bitbucketUsersService;
 
-    public function __construct(BitbucketService $bitbucketService, BitbucketUsersService $bitbucketUsersService)
+    public function __construct(BitbucketService $bitbucketService)
     {
         $this->bitbucketService = $bitbucketService;
-        $this->bitbucketUsersService = $bitbucketUsersService;
     }
 
     /**
