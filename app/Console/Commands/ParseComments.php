@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class ParseComments extends Command
 {
-    protected $signature = 'app:parse-comments';
+    protected $signature = 'app:parse-comments {--onlyActive}';
     protected $description = 'Parse all new comments';
     private CommentsCollectorService $commentsCollector;
 
@@ -24,7 +24,11 @@ class ParseComments extends Command
      */
     public function handle(): int
     {
-        $commentsCollectorDto = $this->commentsCollector->collectAllCommentsFromPullRequests();
+        if ($this->option('onlyActive')) {
+            $commentsCollectorDto = $this->commentsCollector->collectAllCommentsFromActivePullRequests();
+        } else {
+            $commentsCollectorDto = $this->commentsCollector->collectAllCommentsFromPullRequests();
+        }
         $this->output->text("Pull Requests:");
         $bar = $this->output->createProgressBar($commentsCollectorDto->totalCount);
         $bar->start();

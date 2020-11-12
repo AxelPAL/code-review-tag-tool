@@ -60,6 +60,25 @@ class CommentsCollectorService
         return $commentsCollectorDto;
     }
 
+    public function collectAllCommentsFromActivePullRequests(): CommentsCollectorDto
+    {
+        $commentsCollectorDto = new CommentsCollectorDto();
+
+        $repositories = $this->repositoriesRepository->getAll();
+        foreach ($repositories as $repository) {
+            $pullRequests = $this->pullRequestsRepository->findAllActiveByRepositoryId($repository->id);
+            foreach ($pullRequests as $pullRequest) {
+                $commentsCollectorPullRequestDto = new CommentsCollectorPullRequestDto();
+                $commentsCollectorPullRequestDto->pullRequest = $pullRequest;
+                $commentsCollectorPullRequestDto->repository = $repository;
+                $commentsCollectorDto->pullRequestData[] = $commentsCollectorPullRequestDto;
+                $commentsCollectorDto->totalCount += $pullRequest->comment_count;
+            }
+        }
+
+        return $commentsCollectorDto;
+    }
+
     /**
      * @param CommentsCollectorPullRequestDto $commentsCollectorPullRequestDto
      * @return Comment[]

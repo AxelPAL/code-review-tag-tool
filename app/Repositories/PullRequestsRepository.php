@@ -21,6 +21,15 @@ class PullRequestsRepository
         return PullRequest::whereRepositoryId($repositoryId)->getModels();
     }
 
+    /**
+     * @param int $repositoryId
+     * @return PullRequest[]|Collection
+     */
+    public function findAllActiveByRepositoryId(int $repositoryId)
+    {
+        return PullRequest::whereRepositoryId($repositoryId)->whereState(PullRequest::OPEN_STATE)->getModels();
+    }
+
     public function findByRemoteId(int $remoteId): ?PullRequest
     {
         return PullRequest::whereRemoteId($remoteId)->first();
