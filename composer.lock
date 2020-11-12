@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e2c1fb93554641e5f19e20e5e2266f8",
+    "content-hash": "96757d35703e82317b1727781a68a717",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1236,6 +1236,61 @@
                 "url"
             ],
             "time": "2020-09-30T07:37:11+00:00"
+        },
+        {
+            "name": "hmazter/laravel-schedule-list",
+            "version": "v2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hmazter/laravel-schedule-list.git",
+                "reference": "8dde3e61b38fb0ea5a05dda5693a174d5139a211"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hmazter/laravel-schedule-list/zipball/8dde3e61b38fb0ea5a05dda5693a174d5139a211",
+                "reference": "8dde3e61b38fb0ea5a05dda5693a174d5139a211",
+                "shasum": ""
+            },
+            "require": {
+                "dragonmantank/cron-expression": "^2.0|^3.0",
+                "illuminate/console": "5.6.*|5.7.*|5.8.*|^6.0|^7.0|^8.0",
+                "illuminate/support": "5.6.*|5.7.*|5.8.*|^6.0|^7.0|^8.0",
+                "php": "^7.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "~3.6",
+                "phpunit/phpunit": "^8.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Hmazter\\LaravelScheduleList\\ScheduleListServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hmazter\\LaravelScheduleList\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kristoffer Högberg",
+                    "email": "krihog@gmail.com"
+                }
+            ],
+            "description": "Laravel package to add command to list all scheduled artisan commands",
+            "keywords": [
+                "artisan",
+                "console",
+                "laravel5"
+            ],
+            "time": "2020-09-04T12:12:54+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
