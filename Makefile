@@ -1,7 +1,7 @@
 .PHONY: tests
 
 phpstan:
-	php7.4 ./vendor/bin/phpstan analyze .
+	php8.0 ./vendor/bin/phpstan analyze .
 
 tests:
-	php7.4 ./vendor/bin/phpunit
+	php8.0 ./vendor/bin/phpunit

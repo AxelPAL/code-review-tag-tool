@@ -8,7 +8,7 @@
   ],
   "license": "MIT",
   "require": {
-    "php": "^7.4",
+    "php": "^8.0",
     "ext-json": "*",
     "fideloper/proxy": "^4.2",
     "fruitcake/laravel-cors": "^2.0",
@@ -31,7 +31,7 @@
     "nunomaduro/collision": "^5.0",
     "nunomaduro/larastan": "^0.6.9",
     "phpstan/phpstan": "^0.12.52",
-    "phpunit/phpunit": "^9",
+    "phpunit/phpunit": "^9.3",
     "roave/security-advisories": "dev-master"
   },
   "config": {
@@ -63,13 +63,13 @@
   "scripts": {
     "post-autoload-dump": [
       "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-      "@php7.4 artisan package:discover --ansi"
+      "@php8.0 artisan package:discover --ansi"
     ],
     "post-root-package-install": [
-      "@php7.4 -r \"file_exists('.env') || copy('.env.example', '.env');\""
+      "@php8.0 -r \"file_exists('.env') || copy('.env.example', '.env');\""
     ],
     "post-create-project-cmd": [
-      "@php7.4 artisan key:generate --ansi"
+      "@php8.0 artisan key:generate --ansi"
     ]
   }
 }

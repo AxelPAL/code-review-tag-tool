@@ -11,7 +11,7 @@ class CommentsRepository
         return $comment->save();
     }
 
-    public function findById(int $id): ?Comment
+    public function findByRemoteId(int $id): ?Comment
     {
         return Comment::whereRemoteId($id)->first();
     }

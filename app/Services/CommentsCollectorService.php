@@ -9,6 +9,7 @@ use App\Models\Comment;
 use App\Repositories\PullRequestsRepository;
 use App\Repositories\RepositoriesRepository;
 use Http\Client\Exception;
+use JsonException;
 
 class CommentsCollectorService
 {
@@ -82,7 +83,7 @@ class CommentsCollectorService
     /**
      * @param CommentsCollectorPullRequestDto $commentsCollectorPullRequestDto
      * @return Comment[]
-     * @throws Exception
+     * @throws Exception|JsonException
      */
     public function processPullRequest(CommentsCollectorPullRequestDto $commentsCollectorPullRequestDto): array
     {

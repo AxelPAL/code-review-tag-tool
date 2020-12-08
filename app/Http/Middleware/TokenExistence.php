@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Repositories\UserBitbucketTokenRepository;
 use Closure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -10,6 +11,10 @@ use Illuminate\Support\Facades\Redirect;
 
 class TokenExistence
 {
+    public function __construct(public UserBitbucketTokenRepository $userBitbucketTokenRepository)
+    {
+    }
+
     /**
      * Handle an incoming request.
      *
@@ -20,7 +25,7 @@ class TokenExistence
      */
     public function handle(Request $request, Closure $next, $redirectToRoute = null)
     {
-        if (empty(config('bitbucket.connections.main.token'))) {
+        if (!$this->userBitbucketTokenRepository->existsAndStillActive($request->user()?->id)) {
             return Redirect::to('auth');
         }
 

@@ -5,30 +5,29 @@ namespace App\Services;
 
 use App\Factories\EntitiesFromBitbucketFactory;
 use App\Models\PullRequest;
+use App\Models\UserBitbucketToken;
+use App\Repositories\UserBitbucketSecretsRepository;
+use App\Repositories\UserBitbucketTokenRepository;
 use Bitbucket\Api\ApiInterface;
 use Bitbucket\ResultPager;
 use Cache;
+use Carbon\Carbon;
 use Generator;
 use GrahamCampbell\Bitbucket\BitbucketManager;
 use Http;
 use Http\Client\Exception;
-use Log;
+use LogicException;
 
 class BitbucketService
 {
 
-    private BitbucketManager $bitbucket;
-    private Cache $cache;
-    private EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory;
-
     public function __construct(
-        BitbucketManager $bitbucket,
-        Cache $cache,
-        EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory
+        private BitbucketManager $bitbucket,
+        private Cache $cache,
+        private EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory,
+        public UserBitbucketTokenRepository $bitbucketTokenRepository,
+        public UserBitbucketSecretsRepository $userBitbucketSecretsRepository,
     ) {
-        $this->bitbucket = $bitbucket;
-        $this->cache = $cache;
-        $this->entitiesFromBitbucketFactory = $entitiesFromBitbucketFactory;
     }
 
     /**
@@ -155,22 +154,27 @@ class BitbucketService
         return $this->getAllListPages($commentsClient);
     }
 
-    public function getOAuthCodeUrl(): string
+    public function getOAuthCodeUrl(int $userId): string
     {
+        $userSecrets = $this->userBitbucketSecretsRepository->findByUserId($userId);
         return sprintf(
             "https://bitbucket.org/site/oauth2/authorize?client_id=%s&response_type=code",
-            env('BITBUCKET_CLIENT_ID')
+            $userSecrets->client_id
         );
     }
 
     /**
+     * @param int $userId
      * @param string $code
      * @return bool
      */
-    public function getAndSaveOAuthAccessToken(string $code): bool
+    public function getAndSaveOAuthAccessToken(int $userId, string $code): bool
     {
-        $result = false;
-        $response = Http::withBasicAuth(env('BITBUCKET_CLIENT_ID'), env('BITBUCKET_CLIENT_SECRET'))
+        $userSecrets = $this->userBitbucketSecretsRepository->findByUserId($userId);
+        if ($userSecrets === null) {
+            throw new LogicException('No user secrets have been found for user' . $userId);
+        }
+        $response = Http::withBasicAuth($userSecrets->client_id, $userSecrets->client_secret)
             ->asForm()
             ->post(
                 'https://bitbucket.org/site/oauth2/access_token',
@@ -180,15 +184,20 @@ class BitbucketService
                 ]
             );
         $data = $response->json();
-        if (isset($data['access_token'])) {
-            config(['bitbucket.connections.main.token' => $data['access_token']]);
-            try {
-                $result = $this->cache::set('BITBUCKET_TOKEN', $data['access_token'], $data['expires_in']);
-            } catch (\Psr\SimpleCache\InvalidArgumentException $e) {
-                Log::warning($e->getMessage());
-            }
+        return $this->saveBitbucketTokenData($data, $userId);
+    }
+
+    private function saveBitbucketTokenData(array $data, int $userId): bool
+    {
+        $userBitbucketToken = $this->bitbucketTokenRepository->findByUserId($userId);
+        if ($userBitbucketToken === null) {
+            $userBitbucketToken = new UserBitbucketToken();
+            $userBitbucketToken->user_id = $userId;
         }
-        return $result;
+        $expiresIn = (new Carbon())->addSeconds($data['expires_in']);
+        $userBitbucketToken->fill($data);
+        $userBitbucketToken->expires_at = $expiresIn;
+        return $this->bitbucketTokenRepository->save($userBitbucketToken);
     }
 
 }

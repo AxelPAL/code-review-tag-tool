@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Comment;
 use App\Services\CommentsCollectorService;
 use Http\Client\Exception;
 use Illuminate\Console\Command;
+use JsonException;
 
 class ParseComments extends Command
 {
@@ -20,7 +22,7 @@ class ParseComments extends Command
 
     /**
      * @return int
-     * @throws Exception
+     * @throws Exception|JsonException
      */
     public function handle(): int
     {
@@ -32,12 +34,13 @@ class ParseComments extends Command
         $this->output->text("Pull Requests:");
         $bar = $this->output->createProgressBar($commentsCollectorDto->totalCount);
         $bar->start();
+        $processedCommentsCount = 0;
         foreach ($commentsCollectorDto->pullRequestData as $pullRequestData) {
             $comments = $this->commentsCollector->processPullRequest($pullRequestData);
+            $processedCommentsCount += count($comments);
             $bar->advance();
         }
         $bar->finish();
-        $processedCommentsCount = count($comments);
         $this->output->text("Comments processed: $processedCommentsCount");
         return 0;
     }

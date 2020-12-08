@@ -12,6 +12,9 @@ use App\Repositories\CommentsRepository;
 use App\Repositories\PullRequestsRepository;
 use App\Repositories\RemoteUsersRepository;
 use App\Repositories\RepositoriesRepository;
+use JsonException;
+use Log;
+use Throwable;
 
 class EntitiesFromBitbucketFactory
 {
@@ -111,27 +114,33 @@ class EntitiesFromBitbucketFactory
         return $pullRequest;
     }
 
+    /**
+     * @param array $bitbucketApiData
+     * @return Comment
+     * @throws JsonException
+     */
     public function createCommentIfNotExists(array $bitbucketApiData): Comment
     {
-        $comment = $this->commentsRepository->findById($bitbucketApiData['id']);
-        if ($comment !== null) {
+        $comment = $this->commentsRepository->findByRemoteId($bitbucketApiData['id']);
+        if ($comment === null) {
             $comment = new Comment();
-            $comment->web_link = $bitbucketApiData['links']['html']['href'];
-            $remoteUser = $this->remoteUsersRepository->findByUUID($bitbucketApiData['user']['uuid']);
-            if ($remoteUser !== null) {
-                $comment->remote_user_id = $remoteUser->id;
-            }
-            $comment->isDeleted = $bitbucketApiData['deleted'];
-            $pullRequest = $this->pullRequestsRepository->findByRemoteId($bitbucketApiData['pullrequest']['id']);
-            if ($pullRequest !== null) {
-                $comment->pull_request_id = $pullRequest->id;
-            }
-            $comment->repository_created_at = $bitbucketApiData['created_on'];
-            $comment->repository_updated_at = $bitbucketApiData['updated_on'];
             $comment->remote_id = $bitbucketApiData['id'];
-            $this->commentsRepository->save($comment);
         }
-        if (!empty($bitbucketApiData['content'])) {
+        $comment->web_link = $bitbucketApiData['links']['html']['href'];
+        $remoteUser = $this->remoteUsersRepository->findByUUID($bitbucketApiData['user']['uuid']);
+        if ($remoteUser === null) {
+            $remoteUser = $this->createRemoteUserIfNotExists($bitbucketApiData['user']);
+        }
+        $comment->remote_user_id = $remoteUser->id;
+        $comment->isDeleted = $bitbucketApiData['deleted'];
+        $pullRequest = $this->pullRequestsRepository->findByRemoteId($bitbucketApiData['pullrequest']['id']);
+        if ($pullRequest !== null) {
+            $comment->pull_request_id = $pullRequest->id;
+        }
+        $comment->repository_created_at = $bitbucketApiData['created_on'];
+        $comment->repository_updated_at = $bitbucketApiData['updated_on'];
+        $comment->remote_id = $bitbucketApiData['id'];
+        if (!empty($bitbucketApiData['content']) && $this->tryToSaveComment($comment)) {
             $content = $bitbucketApiData['content'];
             $this->createCommentContentIfNotExists($comment, $content);
         }
@@ -170,5 +179,18 @@ class EntitiesFromBitbucketFactory
         }
 
         return $remoteUser;
+    }
+
+    private function tryToSaveComment(Comment $comment): bool
+    {
+        $saved = false;
+        try {
+            $saved = $this->commentsRepository->save($comment);
+        } catch (Throwable $e) {
+            Log::warning('cannot save comment', [
+                'comment' => json_encode($comment->getAttributes(), JSON_THROW_ON_ERROR)
+            ]);
+        }
+        return $saved;
     }
 }

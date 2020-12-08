@@ -47,7 +47,7 @@ class PullRequestsCollectorService
         $pullRequests = [];
         $repositories = $this->getAllRepositories();
         foreach ($repositories as $repository) {
-            $pullRequests = $this->bitbucketService->getActivePullRequests($repository->workspace, $repository->slug);
+            $pullRequests[] = $this->bitbucketService->getActivePullRequests($repository->workspace, $repository->slug);
         }
 
         return $pullRequests;

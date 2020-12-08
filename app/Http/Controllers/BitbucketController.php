@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\UserBitbucketTokenRepository;
 use App\Services\BitbucketService;
 use App\Services\BitbucketUsersService;
 use Cache;
@@ -10,6 +11,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class BitbucketController extends Controller
@@ -18,21 +20,29 @@ class BitbucketController extends Controller
      * @var BitbucketService
      */
     private BitbucketService $bitbucketService;
-    /**
-     * @var BitbucketUsersService
-     */
 
-    public function __construct(BitbucketService $bitbucketService)
-    {
+    /**
+     *
+     * @param BitbucketService $bitbucketService
+     * @param UserBitbucketTokenRepository $bitbucketTokenRepository
+     */
+    public function __construct(
+        BitbucketService $bitbucketService,
+        public UserBitbucketTokenRepository $userBitbucketTokenRepository,
+    ) {
         $this->bitbucketService = $bitbucketService;
     }
 
     /**
      * @return Application|Factory|View
      */
-    public function index()
+    public function index(Request $request)
     {
-        $isBitbucketApiKeyAcquired = !empty(config('bitbucket.connections.main.token'));
+        if ($request->user() !== null) {
+            $isBitbucketApiKeyAcquired = $this->userBitbucketTokenRepository->existsAndStillActive(
+                $request->user()->id
+            );
+        }
         return view('index', compact('isBitbucketApiKeyAcquired'));
     }
 
@@ -91,9 +101,9 @@ class BitbucketController extends Controller
         return view('comments', compact('comments', 'pullRequestId'));
     }
 
-    public function auth(): RedirectResponse
+    public function auth(Request $request): RedirectResponse
     {
-        return redirect()->away($this->bitbucketService->getOAuthCodeUrl());
+        return redirect()->away($this->bitbucketService->getOAuthCodeUrl($request->user()->id));
     }
 
     /**
@@ -103,7 +113,7 @@ class BitbucketController extends Controller
     public function receiveOAuthCode(Request $request): RedirectResponse
     {
         $redirectRoute = 'auth';
-        if ($this->bitbucketService->getAndSaveOAuthAccessToken($request->get('code'))) {
+        if ($this->bitbucketService->getAndSaveOAuthAccessToken($request->user()->id, $request->get('code'))) {
             $redirectRoute = 'dashboard';
         }
         return redirect()->route($redirectRoute);
