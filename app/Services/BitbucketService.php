@@ -157,6 +157,9 @@ class BitbucketService
     public function getOAuthCodeUrl(int $userId): string
     {
         $userSecrets = $this->userBitbucketSecretsRepository->findByUserId($userId);
+        if ($userSecrets === null) {
+            throw new LogicException('No user secrets have been found for user' . $userId);
+        }
         return sprintf(
             "https://bitbucket.org/site/oauth2/authorize?client_id=%s&response_type=code",
             $userSecrets->client_id
