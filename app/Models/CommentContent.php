@@ -31,6 +31,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|CommentContent whereRaw($value)
  * @method static Builder|CommentContent whereType($value)
  * @method static Builder|CommentContent whereUpdatedAt($value)
+ * @method static Builder|CommentContent whereTag($value)
  * @mixin Eloquent
  */
 class CommentContent extends Model

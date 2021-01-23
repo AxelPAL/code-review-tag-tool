@@ -19,7 +19,7 @@ use Illuminate\Support\Carbon;
  * @property string $repository_created_at
  * @property string $repository_updated_at
  * @property int $remote_id
- * @property int|null $parent_id
+ * @property int|null $parent_remote_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|Comment newModelQuery()

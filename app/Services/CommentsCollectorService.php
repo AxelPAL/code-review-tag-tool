@@ -9,6 +9,7 @@ use App\Models\Comment;
 use App\Repositories\PullRequestsRepository;
 use App\Repositories\RepositoriesRepository;
 use Http\Client\Exception;
+use Illuminate\Database\Eloquent\Collection;
 use JsonException;
 
 class CommentsCollectorService

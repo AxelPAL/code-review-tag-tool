@@ -14,7 +14,7 @@ class AddColumnParentIdToComments extends Migration
     public function up()
     {
         Schema::table('comments', function (Blueprint $table) {
-            $table->integer('parent_id')->nullable();
+            $table->integer('parent_remote_id')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddColumnParentIdToComments extends Migration
     public function down()
     {
         Schema::table('comments', function (Blueprint $table) {
-            $table->dropColumn('parent_id');
+            $table->dropColumn('parent_remote_id');
         });
     }
 }

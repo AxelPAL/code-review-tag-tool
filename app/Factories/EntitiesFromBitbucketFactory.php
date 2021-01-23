@@ -12,6 +12,7 @@ use App\Repositories\CommentsRepository;
 use App\Repositories\PullRequestsRepository;
 use App\Repositories\RemoteUsersRepository;
 use App\Repositories\RepositoriesRepository;
+use App\Services\TagParsingService;
 use JsonException;
 use Log;
 use Throwable;
@@ -22,35 +23,46 @@ class EntitiesFromBitbucketFactory
      * @var RepositoriesRepository
      */
     private RepositoriesRepository $repositoriesRepository;
+
     /**
      * @var PullRequestsRepository
      */
     private PullRequestsRepository $pullRequestsRepository;
+
     /**
      * @var CommentsRepository
      */
     private CommentsRepository $commentsRepository;
+
     /**
      * @var CommentContentsRepository
      */
+
     private CommentContentsRepository $commentContentsRepository;
     /**
      * @var RemoteUsersRepository
      */
     private RemoteUsersRepository $remoteUsersRepository;
 
+    /**
+     * @var TagParsingService
+     */
+    private TagParsingService $tagParsingService;
+
     public function __construct(
         RepositoriesRepository $repositoriesRepository,
         PullRequestsRepository $pullRequestsRepository,
         CommentsRepository $commentsRepository,
         CommentContentsRepository $commentContentsRepository,
-        RemoteUsersRepository $remoteUsersRepository
+        RemoteUsersRepository $remoteUsersRepository,
+        TagParsingService $tagParsingService
     ) {
         $this->repositoriesRepository = $repositoriesRepository;
         $this->pullRequestsRepository = $pullRequestsRepository;
         $this->commentsRepository = $commentsRepository;
         $this->commentContentsRepository = $commentContentsRepository;
         $this->remoteUsersRepository = $remoteUsersRepository;
+        $this->tagParsingService = $tagParsingService;
     }
 
     public function createRepositoryIfNotExists(array $bitbucketApiData): Repository
@@ -137,6 +149,9 @@ class EntitiesFromBitbucketFactory
         if ($pullRequest !== null) {
             $comment->pull_request_id = $pullRequest->id;
         }
+        if (!empty($bitbucketApiData['parent'])) {
+            $comment->parent_remote_id = $bitbucketApiData['parent']['id'];
+        }
         $comment->repository_created_at = $bitbucketApiData['created_on'];
         $comment->repository_updated_at = $bitbucketApiData['updated_on'];
         $comment->remote_id = $bitbucketApiData['id'];
@@ -159,6 +174,7 @@ class EntitiesFromBitbucketFactory
         $commentContent->html = $contentData['html'];
         $commentContent->markup = $contentData['markup'];
         $commentContent->type = $contentData['type'];
+        $commentContent->tag = $this->tagParsingService->getTagFromCommentContent($contentData['html']);
         $this->commentContentsRepository->save($commentContent);
 
         return $commentContent;
@@ -181,12 +197,17 @@ class EntitiesFromBitbucketFactory
         return $remoteUser;
     }
 
+    /**
+     * @param Comment $comment
+     * @return bool
+     * @throws JsonException
+     */
     private function tryToSaveComment(Comment $comment): bool
     {
         $saved = false;
         try {
             $saved = $this->commentsRepository->save($comment);
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             Log::warning('cannot save comment', [
                 'comment' => json_encode($comment->getAttributes(), JSON_THROW_ON_ERROR)
             ]);
