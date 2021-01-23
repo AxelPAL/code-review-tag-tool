@@ -40,6 +40,7 @@ class CommentsCollectorService
         $this->repositoriesRepository = $repositoriesRepository;
         $this->pullRequestsRepository = $pullRequestsRepository;
         $this->entitiesFromBitbucketFactory = $entitiesFromBitbucketFactory;
+        $this->bitbucketService->init(BitbucketService::ADMIN_USER_ID);
     }
 
     public function collectAllCommentsFromPullRequests(): CommentsCollectorDto
@@ -91,7 +92,7 @@ class CommentsCollectorService
         $comments = $this->bitbucketService->getAllCommentsOfPullRequest(
             $commentsCollectorPullRequestDto->repository->workspace,
             $commentsCollectorPullRequestDto->repository->slug,
-            $commentsCollectorPullRequestDto->pullRequest->id
+            $commentsCollectorPullRequestDto->pullRequest->remote_id
         );
         foreach ($comments as $commentData) {
             $comment = $this->entitiesFromBitbucketFactory->createCommentIfNotExists($commentData);

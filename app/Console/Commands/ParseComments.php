@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Comment;
 use App\Services\CommentsCollectorService;
 use Http\Client\Exception;
 use Illuminate\Console\Command;
@@ -31,7 +30,7 @@ class ParseComments extends Command
         } else {
             $commentsCollectorDto = $this->commentsCollector->collectAllCommentsFromPullRequests();
         }
-        $this->output->text("Pull Requests:");
+        $this->output->text("Comments in Pull Requests processed:");
         $bar = $this->output->createProgressBar($commentsCollectorDto->totalCount);
         $bar->start();
         $processedCommentsCount = 0;

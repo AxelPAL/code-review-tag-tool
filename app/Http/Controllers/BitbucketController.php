@@ -4,39 +4,37 @@ namespace App\Http\Controllers;
 
 use App\Repositories\UserBitbucketTokenRepository;
 use App\Services\BitbucketService;
-use App\Services\BitbucketUsersService;
+use App\Traits\UserInsideControllerTrait;
 use Cache;
 use Http\Client\Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class BitbucketController extends Controller
 {
+    use UserInsideControllerTrait;
     /**
      * @var BitbucketService
      */
     private BitbucketService $bitbucketService;
 
-    /**
-     *
-     * @param BitbucketService $bitbucketService
-     * @param UserBitbucketTokenRepository $bitbucketTokenRepository
-     */
     public function __construct(
         BitbucketService $bitbucketService,
         public UserBitbucketTokenRepository $userBitbucketTokenRepository,
+        public Request $request
     ) {
         $this->bitbucketService = $bitbucketService;
+        $this->bitbucketService->init($this->getUserIdFromSession());
     }
 
     /**
+     * @param Request $request
      * @return Application|Factory|View
      */
-    public function index(Request $request)
+    public function index(Request $request): Factory|View|Application
     {
         if ($request->user() !== null) {
             $isBitbucketApiKeyAcquired = $this->userBitbucketTokenRepository->existsAndStillActive(
@@ -47,11 +45,13 @@ class BitbucketController extends Controller
     }
 
     /**
+     * @param Request $request
      * @return Application|Factory|\Illuminate\Contracts\View\View|RedirectResponse
      * @throws Exception
      */
-    public function workspaces()
+    public function workspaces(Request $request): \Illuminate\Contracts\View\View|Factory|RedirectResponse|Application
     {
+        $this->bitbucketService->init($request->user()->id);
         $workspaces = $this->bitbucketService->getAvailableWorkspaces();
 
         return view('workspaces', compact('workspaces'));
@@ -62,7 +62,7 @@ class BitbucketController extends Controller
      * @return Application|Factory|RedirectResponse|View
      * @throws Exception
      */
-    public function repositories(string $workspace)
+    public function repositories(string $workspace): Factory|View|Application|RedirectResponse
     {
         $repositories = $this->bitbucketService->getAvailableRepositories($workspace);
 
@@ -73,9 +73,8 @@ class BitbucketController extends Controller
      * @param string $workspace
      * @param string $repository
      * @return Application|Factory|\Illuminate\Contracts\View\View|RedirectResponse
-     * @throws Exception
      */
-    public function pullRequests(string $workspace, string $repository)
+    public function pullRequests(string $workspace, string $repository): Factory|\Illuminate\Contracts\View\View|Application|RedirectResponse
     {
         $cacheKey = $workspace . $repository;
         $pullRequests = Cache::remember(
@@ -94,7 +93,7 @@ class BitbucketController extends Controller
      * @return Application|Factory|\Illuminate\Contracts\View\View
      * @throws Exception
      */
-    public function comments(string $workspace, string $repository, int $pullRequestId)
+    public function comments(string $workspace, string $repository, int $pullRequestId): Factory|\Illuminate\Contracts\View\View|Application
     {
         $comments = $this->bitbucketService->getAllCommentsOfPullRequest($workspace, $repository, $pullRequestId);
 

@@ -20,6 +20,7 @@ class CreateCommentContentsTable extends Migration
             $table->longText('html');
             $table->string('markup');
             $table->string('type');
+            $table->string('tag');
             $table->timestamps();
 
         });

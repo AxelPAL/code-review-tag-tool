@@ -16,7 +16,7 @@ class PullRequestsRepository
      * @param int $repositoryId
      * @return PullRequest[]|Collection
      */
-    public function findAllByRepositoryId(int $repositoryId)
+    public function findAllByRepositoryId(int $repositoryId): Collection|array
     {
         return PullRequest::whereRepositoryId($repositoryId)->getModels();
     }
@@ -25,7 +25,7 @@ class PullRequestsRepository
      * @param int $repositoryId
      * @return PullRequest[]|Collection
      */
-    public function findAllActiveByRepositoryId(int $repositoryId)
+    public function findAllActiveByRepositoryId(int $repositoryId): Collection|array
     {
         return PullRequest::whereRepositoryId($repositoryId)->whereState(PullRequest::OPEN_STATE)->getModels();
     }

@@ -9,6 +9,7 @@ use App\Models\UserBitbucketToken;
 use App\Repositories\UserBitbucketSecretsRepository;
 use App\Repositories\UserBitbucketTokenRepository;
 use Bitbucket\Api\ApiInterface;
+use Bitbucket\Client;
 use Bitbucket\ResultPager;
 use Cache;
 use Carbon\Carbon;
@@ -17,9 +18,11 @@ use GrahamCampbell\Bitbucket\BitbucketManager;
 use Http;
 use Http\Client\Exception;
 use LogicException;
+use RuntimeException;
 
 class BitbucketService
 {
+    public const ADMIN_USER_ID = 1;
 
     public function __construct(
         private BitbucketManager $bitbucket,
@@ -55,9 +58,14 @@ class BitbucketService
      */
     protected function getAllListPages(ApiInterface $query, array $params = []): Generator
     {
-        $client = $this->bitbucket->connection($this->bitbucket->getDefaultConnection());
+        $client = $this->getBitbucketClient();
         $paginator = new ResultPager($client);
         return $paginator->fetchAllLazy($query, 'list', [$params]);
+    }
+
+    protected function getBitbucketClient(): Client
+    {
+        return $this->bitbucket->connection($this->bitbucket->getDefaultConnection());
     }
 
     /**
@@ -201,6 +209,21 @@ class BitbucketService
         $userBitbucketToken->fill($data);
         $userBitbucketToken->expires_at = $expiresIn;
         return $this->bitbucketTokenRepository->save($userBitbucketToken);
+    }
+
+    public function init(?int $userId): void
+    {
+        if ($userId !== null) {
+            $client = $this->getBitbucketClient();
+            $userBitbucketToken = $this->bitbucketTokenRepository->findByUserId($userId);
+            if ($userBitbucketToken === null) {
+                throw new RuntimeException('Token was not present!');
+            }
+            $client->authenticate(
+                Client::AUTH_OAUTH_TOKEN,
+                $userBitbucketToken->access_token
+            );
+        }
     }
 
 }

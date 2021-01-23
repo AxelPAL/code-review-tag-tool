@@ -20,6 +20,7 @@ class PullRequestsCollectorService
         RepositoriesRepository $repositoriesRepository
     ) {
         $this->bitbucketService = $bitbucketService;
+        $this->bitbucketService->init(BitbucketService::ADMIN_USER_ID);
         $this->repositoriesRepository = $repositoriesRepository;
     }
 
@@ -32,7 +33,7 @@ class PullRequestsCollectorService
         $pullRequests = [];
         $repositories = $this->getAllRepositories();
         foreach ($repositories as $repository) {
-            $pullRequests = $this->bitbucketService->getPullRequests($repository->workspace, $repository->slug);
+            $pullRequests = $this->bitbucketService->getActivePullRequests($repository->workspace, $repository->slug);
         }
 
         return $pullRequests;
@@ -47,7 +48,7 @@ class PullRequestsCollectorService
         $pullRequests = [];
         $repositories = $this->getAllRepositories();
         foreach ($repositories as $repository) {
-            $pullRequests[] = $this->bitbucketService->getActivePullRequests($repository->workspace, $repository->slug);
+            $pullRequests[] = $this->bitbucketService->getPullRequests($repository->workspace, $repository->slug);
         }
 
         return $pullRequests;
