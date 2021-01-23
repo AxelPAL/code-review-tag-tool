@@ -10,4 +10,3 @@ $classes = ($active ?? false) ? $activeClass : $inactiveClass;
 <a {{ $attributes->merge(['class' => $classes]) }}>
     {{ $slot }}
 </a>
-<a href="{{ route('workspaces') }}" class="{{$inactiveClass}}">Workspaces</a>

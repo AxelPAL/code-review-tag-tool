@@ -11,6 +11,11 @@ class RemoteUsersRepository
         return $remoteUser->save();
     }
 
+    public function getAll(): array
+    {
+        return RemoteUser::get()->all();
+    }
+
     public function findByUUID(string $uuid): ?RemoteUser
     {
         return RemoteUser::whereUuid($uuid)->first();

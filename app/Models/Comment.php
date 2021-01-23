@@ -6,6 +6,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -22,6 +23,9 @@ use Illuminate\Support\Carbon;
  * @property int|null $parent_remote_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
+ * @property CommentContent $content
+ *
  * @method static Builder|Comment newModelQuery()
  * @method static Builder|Comment newQuery()
  * @method static Builder|Comment query()
@@ -41,4 +45,9 @@ use Illuminate\Support\Carbon;
 class Comment extends Model
 {
     use HasFactory;
+
+    public function content(): HasOne
+    {
+        return $this->hasOne(CommentContent::class);
+    }
 }

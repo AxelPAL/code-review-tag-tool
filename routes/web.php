@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BitbucketController;
+use App\Http\Controllers\ReportController;
 use App\Http\Middleware\TokenExistence;
 use Illuminate\Support\Facades\Route;
 
@@ -24,3 +25,4 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('auth', [BitbucketController::class, 'auth'])->name('auth');
     Route::get('receiveOAuthCode', [BitbucketController::class, 'receiveOAuthCode'])->name('receiveOAuthCode');
 });
+Route::view('report', 'report')->name('report');
