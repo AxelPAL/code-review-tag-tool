@@ -17,12 +17,13 @@ class CommentsRepository
         Carbon $fromDate,
         Carbon $toDate,
         int $remoteUserId
-    ): LazyCollection
-    {
+    ): LazyCollection {
         $fromDateString = $fromDate->format('Y-m-d H:i:s');
         $toDateString = $toDate->format('Y-m-d H:i:s');
 
-        return Comment::whereRemoteUserId($remoteUserId)
+        return Comment::whereHas('pullRequest', function ($query) use ($remoteUserId) {
+            return $query->whereRemoteAuthorId($remoteUserId);
+        })
             ->whereBetween('repository_created_at', [$fromDateString, $toDateString])
             ->get()
             ->lazy();
