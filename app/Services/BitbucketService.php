@@ -12,11 +12,11 @@ use Bitbucket\Api\ApiInterface;
 use Bitbucket\Client;
 use Bitbucket\ResultPager;
 use Cache;
-use Carbon\Carbon;
 use Generator;
 use GrahamCampbell\Bitbucket\BitbucketManager;
 use Http;
 use Http\Client\Exception;
+use Illuminate\Support\Carbon;
 use LogicException;
 use RuntimeException;
 

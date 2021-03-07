@@ -18,16 +18,22 @@ class UpdateProfileBitbucketSecrets extends Component
 
     public function saveSecrets(): bool
     {
+        $result = false;
         $this->mount();
-        $this->userBitbucketSecrets->client_id = $this->clientId;
-        $this->userBitbucketSecrets->client_secret = $this->clientSecret;
-        return $this->getUserBitbucketSecretsRepository()->save($this->userBitbucketSecrets);
+        if ($this->userBitbucketSecrets !== null) {
+            $this->userBitbucketSecrets->client_id = $this->clientId;
+            $this->userBitbucketSecrets->client_secret = $this->clientSecret;
+            $result = $this->getUserBitbucketSecretsRepository()->save($this->userBitbucketSecrets);
+        }
+        return $result;
     }
 
     public function mount(): void
     {
         $bitbucketService = $this->getUserBitbucketSecretsRepository();
-        $this->userBitbucketSecrets = $bitbucketService->findByUserId(auth()->id());
+        if (auth()->id() !== null) {
+            $this->userBitbucketSecrets = $bitbucketService->findByUserId((int)auth()->id());
+        }
     }
 
     public function getUserBitbucketSecretsRepository(): UserBitbucketSecretsRepository
@@ -35,7 +41,7 @@ class UpdateProfileBitbucketSecrets extends Component
         return resolve(UserBitbucketSecretsRepository::class);
     }
 
-    public function render(): Factory|View|Application
+    public function render(): Factory | View | Application
     {
         $this->loadData();
         return view('livewire.profile.update-profile-bitbucket-secrets');

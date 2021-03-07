@@ -56,7 +56,7 @@ class CommentsCollectorService
                 $commentsCollectorPullRequestDto->pullRequest = $pullRequest;
                 $commentsCollectorPullRequestDto->repository = $repository;
                 $commentsCollectorDto->pullRequestData[] = $commentsCollectorPullRequestDto;
-                $commentsCollectorDto->totalCount += $pullRequest->comment_count;
+                $commentsCollectorDto->totalCount += (int)$pullRequest->comment_count;
             }
         }
 
@@ -75,7 +75,7 @@ class CommentsCollectorService
                 $commentsCollectorPullRequestDto->pullRequest = $pullRequest;
                 $commentsCollectorPullRequestDto->repository = $repository;
                 $commentsCollectorDto->pullRequestData[] = $commentsCollectorPullRequestDto;
-                $commentsCollectorDto->totalCount += $pullRequest->comment_count;
+                $commentsCollectorDto->totalCount += (int)$pullRequest->comment_count;
             }
         }
 
@@ -102,5 +102,4 @@ class CommentsCollectorService
 
         return $processedComments;
     }
-
 }

@@ -16,6 +16,7 @@ use Illuminate\View\View;
 class BitbucketController extends Controller
 {
     use UserInsideControllerTrait;
+
     /**
      * @var BitbucketService
      */
@@ -36,6 +37,7 @@ class BitbucketController extends Controller
      */
     public function index(Request $request): Factory|View|Application
     {
+        $isBitbucketApiKeyAcquired = false;
         if ($request->user() !== null) {
             $isBitbucketApiKeyAcquired = $this->userBitbucketTokenRepository->existsAndStillActive(
                 $request->user()->id
@@ -74,8 +76,10 @@ class BitbucketController extends Controller
      * @param string $repository
      * @return Application|Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
-    public function pullRequests(string $workspace, string $repository): Factory|\Illuminate\Contracts\View\View|Application|RedirectResponse
-    {
+    public function pullRequests(
+        string $workspace,
+        string $repository
+    ): Factory|\Illuminate\Contracts\View\View|Application|RedirectResponse {
         $cacheKey = $workspace . $repository;
         $pullRequests = Cache::remember(
             $cacheKey,
@@ -93,8 +97,11 @@ class BitbucketController extends Controller
      * @return Application|Factory|\Illuminate\Contracts\View\View
      * @throws Exception
      */
-    public function comments(string $workspace, string $repository, int $pullRequestId): Factory|\Illuminate\Contracts\View\View|Application
-    {
+    public function comments(
+        string $workspace,
+        string $repository,
+        int $pullRequestId
+    ): Factory|\Illuminate\Contracts\View\View|Application {
         $comments = $this->bitbucketService->getAllCommentsOfPullRequest($workspace, $repository, $pullRequestId);
 
         return view('comments', compact('comments', 'pullRequestId'));

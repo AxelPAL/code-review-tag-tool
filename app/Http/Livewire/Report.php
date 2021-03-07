@@ -19,9 +19,9 @@ class Report extends Component
     public array $tags = [];
     public array $users = [];
 
-    protected $queryString = ['fromDate', 'toDate', 'remoteUserId'];
+    protected $queryString = ['fromDate', 'toDate', 'remoteUserId']; //@phpstan-ignore-line
 
-    public function render(): Factory|View|Application
+    public function render(): Factory | View | Application
     {
         $this->prepare();
         return view('livewire.report');
@@ -63,12 +63,12 @@ class Report extends Component
         return $users;
     }
 
-    private function getReportAggregatorService()
+    private function getReportAggregatorService(): ReportAggregatorService
     {
         return resolve(ReportAggregatorService::class);
     }
 
-    private function getRemoteUsersRepository()
+    private function getRemoteUsersRepository(): RemoteUsersRepository
     {
         return resolve(RemoteUsersRepository::class);
     }

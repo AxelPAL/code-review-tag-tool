@@ -25,7 +25,7 @@ class FillTags extends Command
      */
     protected $description = 'Fill tags for all comments that don\'t have it';
 
-    protected ?ProgressBar $progressBar;
+    protected ProgressBar $progressBar;
 
     /**
      * @var CommentContentsRepository

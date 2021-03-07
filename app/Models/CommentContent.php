@@ -17,7 +17,7 @@ use Illuminate\Support\Carbon;
  * @property string $html
  * @property string $markup
  * @property string $type
- * @property string $tag
+ * @property string|null $tag
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @method static Builder|CommentContent newModelQuery()

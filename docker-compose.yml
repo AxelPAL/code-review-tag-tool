@@ -1,0 +1,67 @@
+version: "3.3"
+services:
+  app:
+    image: axelpal/code-review-tool-app:${IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    tty: true
+    entrypoint: /wait-for postgres:5432 -t 60 -- /app-entrypoint.sh
+    command: php-fpm -F
+    environment:
+      XDEBUG_CONFIG: ${XDEBUG_CONFIG}
+    networks:
+      app_net:
+    volumes:
+      - .:/app:delegated
+      - ./docker/php/app-entrypoint.sh:/app-entrypoint.sh
+      - phpstan-data:/tmp/phpstan:delegated
+    depends_on:
+      - redis
+      - postgres
+
+  nginx:
+    image: axelpal/code-review-tool-nginx:${IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+      args:
+        APP_IMAGE: axelpal/code-review-tool-app:${IMAGE_TAG:-local}
+    tty: true
+    networks:
+      app_net:
+
+    volumes:
+      - ./public:/app/public:delegated
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/nginx/includes:/etc/nginx/includes
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app
+  redis:
+    image: redis
+    tty: true
+    volumes:
+      - redis-data:/data:delegated
+    networks:
+      app_net:
+  postgres:
+    image: postgres:13-alpine
+    tty: true
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    networks:
+      app_net:
+    volumes:
+      - postgres-data:/var/lib/postgresql/data:delegated
+
+volumes:
+  postgres-data:
+  redis-data:
+  phpstan-data:
+
+networks:
+  app_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"

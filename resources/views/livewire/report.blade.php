@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var Report $report
  * @var Carbon $fromDate
@@ -46,12 +47,14 @@ use Carbon\Carbon;
                                 @endforeach
                             </select>
                         </td>
+                        <td class="border border-purple-200 px-4 py-2 text-grey-800 font-medium">
+                            <button class="report-table-button mr-5 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg">
+                                Prepare
+                            </button>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
-                <button class="report-table-button mr-5 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg">
-                    Prepare
-                </button>
             </form>
 
             <table class="table-auto report-table">
