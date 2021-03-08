@@ -1,6 +1,7 @@
 /node_modules
 /public/hot
 /public/storage
+/public/js/*.LICENSE.txt
 /storage/*.key
 /vendor
 .idea
@@ -16,3 +17,4 @@ _ide_helper.php
 _ide_helper_models.php
 docker/nginx/conf.d/default.conf
 docker-compose.override.yml
+hooks
