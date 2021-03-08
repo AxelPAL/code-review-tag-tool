@@ -31,7 +31,7 @@ enter:
 	docker-compose exec ${container} bash
 
 tests:
-	docker-compose run --rm --entrypoint "" ${container} ./vendor/bin/phpunit
+	docker-compose run --rm --entrypoint "" ${container} ./artisan test
 
 stan:
 	docker-compose run --rm --entrypoint "" ${container} ./vendor/bin/phpstan analyse .
