@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ProcessPullRequest;
 use App\Services\CommentsCollectorService;
-use Http\Client\Exception;
 use Illuminate\Console\Command;
-use JsonException;
 
 class ParseComments extends Command
 {
@@ -19,28 +18,22 @@ class ParseComments extends Command
         parent::__construct();
     }
 
-    /**
-     * @return int
-     * @throws Exception|JsonException
-     */
     public function handle(): int
     {
         if ($this->option('onlyActive')) {
-            $commentsCollectorDto = $this->commentsCollector->collectAllCommentsFromActivePullRequests();
+            $commentsCollectorDto = $this->commentsCollector->collectAllActivePullRequestsForProcessing();
         } else {
-            $commentsCollectorDto = $this->commentsCollector->collectAllCommentsFromPullRequests();
+            $commentsCollectorDto = $this->commentsCollector->collectAllPullRequestsForProcessing();
         }
-        $this->output->text("Comments in Pull Requests processed:");
-        $bar = $this->output->createProgressBar($commentsCollectorDto->totalCount);
+        $this->output->text("Pull Requests sent to queue:");
+        $bar = $this->output->createProgressBar(count($commentsCollectorDto->pullRequests));
         $bar->start();
-        $processedCommentsCount = 0;
-        foreach ($commentsCollectorDto->pullRequestData as $pullRequestData) {
-            $comments = $this->commentsCollector->processPullRequest($pullRequestData);
-            $processedCommentsCount += count($comments);
+        foreach ($commentsCollectorDto->pullRequests as $pullRequest) {
+            ProcessPullRequest::dispatch($pullRequest);
             $bar->advance();
         }
         $bar->finish();
-        $this->output->text("Comments processed: $processedCommentsCount");
+        $this->output->text("");
         return 0;
     }
 }

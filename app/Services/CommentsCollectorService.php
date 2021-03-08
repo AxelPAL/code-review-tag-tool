@@ -2,14 +2,13 @@
 
 namespace App\Services;
 
-use App\Dto\CommentsCollectorDto;
-use App\Dto\CommentsCollectorPullRequestDto;
+use App\Dto\PullRequestCollectorDto;
+use App\Dto\PullRequestsCollectorDto;
 use App\Factories\EntitiesFromBitbucketFactory;
 use App\Models\Comment;
 use App\Repositories\PullRequestsRepository;
 use App\Repositories\RepositoriesRepository;
 use Http\Client\Exception;
-use Illuminate\Database\Eloquent\Collection;
 use JsonException;
 
 class CommentsCollectorService
@@ -44,50 +43,44 @@ class CommentsCollectorService
         $this->bitbucketService->init(BitbucketService::ADMIN_USER_ID);
     }
 
-    public function collectAllCommentsFromPullRequests(): CommentsCollectorDto
+    public function collectAllPullRequestsForProcessing(): PullRequestsCollectorDto
     {
-        $commentsCollectorDto = new CommentsCollectorDto();
-
-        $repositories = $this->repositoriesRepository->getAll();
-        foreach ($repositories as $repository) {
-            $pullRequests = $this->pullRequestsRepository->findAllByRepositoryId($repository->id);
-            foreach ($pullRequests as $pullRequest) {
-                $commentsCollectorPullRequestDto = new CommentsCollectorPullRequestDto();
-                $commentsCollectorPullRequestDto->pullRequest = $pullRequest;
-                $commentsCollectorPullRequestDto->repository = $repository;
-                $commentsCollectorDto->pullRequestData[] = $commentsCollectorPullRequestDto;
-                $commentsCollectorDto->totalCount += (int)$pullRequest->comment_count;
-            }
-        }
-
-        return $commentsCollectorDto;
+        return $this->collectChosenPullRequestsForProcessing();
     }
 
-    public function collectAllCommentsFromActivePullRequests(): CommentsCollectorDto
+    public function collectAllActivePullRequestsForProcessing(): PullRequestsCollectorDto
     {
-        $commentsCollectorDto = new CommentsCollectorDto();
+        return $this->collectChosenPullRequestsForProcessing(true);
+    }
+
+    protected function collectChosenPullRequestsForProcessing(bool $onlyActive = false): PullRequestsCollectorDto
+    {
+        $pullRequestsCollectorDto = new PullRequestsCollectorDto();
 
         $repositories = $this->repositoriesRepository->getAll();
         foreach ($repositories as $repository) {
-            $pullRequests = $this->pullRequestsRepository->findAllActiveByRepositoryId($repository->id);
+            if ($onlyActive) {
+                $pullRequests = $this->pullRequestsRepository->findAllActiveByRepositoryId($repository->id);
+            } else {
+                $pullRequests = $this->pullRequestsRepository->findAllByRepositoryId($repository->id);
+            }
             foreach ($pullRequests as $pullRequest) {
-                $commentsCollectorPullRequestDto = new CommentsCollectorPullRequestDto();
-                $commentsCollectorPullRequestDto->pullRequest = $pullRequest;
-                $commentsCollectorPullRequestDto->repository = $repository;
-                $commentsCollectorDto->pullRequestData[] = $commentsCollectorPullRequestDto;
-                $commentsCollectorDto->totalCount += (int)$pullRequest->comment_count;
+                $pullRequestCollectorDto = new PullRequestCollectorDto();
+                $pullRequestCollectorDto->pullRequest = $pullRequest;
+                $pullRequestCollectorDto->repository = $repository;
+                $pullRequestsCollectorDto->pullRequests[] = $pullRequestCollectorDto;
             }
         }
 
-        return $commentsCollectorDto;
+        return $pullRequestsCollectorDto;
     }
 
     /**
-     * @param CommentsCollectorPullRequestDto $commentsCollectorPullRequestDto
+     * @param PullRequestCollectorDto $commentsCollectorPullRequestDto
      * @return Comment[]
      * @throws Exception|JsonException
      */
-    public function processPullRequest(CommentsCollectorPullRequestDto $commentsCollectorPullRequestDto): array
+    public function processPullRequest(PullRequestCollectorDto $commentsCollectorPullRequestDto): array
     {
         $processedComments = [];
         $comments = $this->bitbucketService->getAllCommentsOfPullRequest(
