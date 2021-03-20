@@ -2,7 +2,7 @@ FROM php:8.0-fpm-alpine
 
 RUN set -ex \
   && apk --no-cache add \
-    postgresql-dev bash nodejs npm git autoconf build-base pcre-dev
+    postgresql-dev bash nodejs npm git autoconf build-base pcre-dev supervisor
 RUN docker-php-ext-install pdo pdo_pgsql
 
 RUN pecl install -o -f redis \
@@ -17,6 +17,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 COPY ./docker/php/php.ini /usr/local/etc/php/php.ini
 COPY ./docker/php/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
+
+COPY ./docker/php/supervisor/supervisord.conf /etc/supervisord.conf
+COPY ./docker/php/supervisor/conf.d/* /etc/supervisor.d/
 
 RUN ln -s /usr/local/bin/php /usr/local/bin/php8.0
 RUN ln -sf /dev/stderr /tmp/php8.0-fpm.log

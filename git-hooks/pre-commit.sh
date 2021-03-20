@@ -14,7 +14,7 @@ for f in $commitFiles; do
 	fi
 done;
 if [[ $phpFilesCount = 0 ]]; then
-  echo 'There are no php-files to process';
+  echo 'There are no php files to process';
 	exit 0;
 fi
 

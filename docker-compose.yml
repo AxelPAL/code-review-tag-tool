@@ -11,6 +11,9 @@ services:
     environment:
       XDEBUG_CONFIG: ${XDEBUG_CONFIG}
       PHP_IDE_CONFIG: "serverName=code-review-tool"
+      STARTUP_START_SUPERVISORD: "true"
+      STARTUP_START_CONSUMERS: "true"
+      STARTUP_START_CRON: "true"
     networks:
       app_net:
     volumes:

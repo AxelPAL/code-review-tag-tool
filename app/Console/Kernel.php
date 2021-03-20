@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Console\Commands\ParseComments;
+use App\Console\Commands\PullRequests;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -19,12 +21,14 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @param Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
-         $schedule->command('app:parse-comments')->daily()->withoutOverlapping();
+        $schedule->command(PullRequests::class, ['--onlyActive'])->everyFourHours();
+        $schedule->command(PullRequests::class)->dailyAt('02:00')->withoutOverlapping();
+        $schedule->command(ParseComments::class)->daily()->withoutOverlapping();
     }
 
     /**
@@ -34,7 +38,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
