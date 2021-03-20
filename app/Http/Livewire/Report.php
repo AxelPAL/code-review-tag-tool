@@ -13,6 +13,8 @@ use Livewire\Component;
 
 class Report extends Component
 {
+    private const DEFAULT_USERS_DROPDOWN_VALUE = 0;
+
     public string $fromDate = '';
     public string $toDate = '';
     public ?int $remoteUserId = null;
@@ -53,7 +55,7 @@ class Report extends Component
 
     private function getAllUsers(): array
     {
-        $users = [];
+        $users = [self::DEFAULT_USERS_DROPDOWN_VALUE => 'Choose developer'];
         $remoteUsers = $this->getRemoteUsersRepository()->getAll();
         foreach ($remoteUsers as $remoteUser) {
             /** @var RemoteUser $remoteUser */

@@ -36,21 +36,11 @@ use Carbon\Carbon;
                             <label for="date">userId</label>
                         </th>
                         <td class="border border-purple-200 px-4 py-2 text-grey-800 font-medium">
-                            {{$remoteUserId}}
                             <select name="remoteUserId" id="remoteUserId" wire:model="remoteUserId">
                             @foreach($users as $userId => $userName)
-                                    <option
-                                    @if($userId === $remoteUserId)
-                                        selected
-                                    @endif
-                                    value="{{$userId}}">{{$userName}}</option>
-                                @endforeach
+                                <option selected value="{{$userId}}">{{$userName}}</option>
+                            @endforeach
                             </select>
-                        </td>
-                        <td class="border border-purple-200 px-4 py-2 text-grey-800 font-medium">
-                            <button class="report-table-button mr-5 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg">
-                                Prepare
-                            </button>
                         </td>
                     </tr>
                     </tbody>
