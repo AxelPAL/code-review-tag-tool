@@ -14,6 +14,7 @@ services:
       STARTUP_START_SUPERVISORD: "true"
       STARTUP_START_CONSUMERS: "true"
       STARTUP_START_CRON: "true"
+      DEFAULT_WORKERS_COUNT: 2
     networks:
       app_net:
     volumes:
