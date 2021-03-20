@@ -10,6 +10,7 @@ services:
     command: php-fpm -F
     environment:
       XDEBUG_CONFIG: ${XDEBUG_CONFIG}
+      PHP_IDE_CONFIG: "serverName=code-review-tool"
     networks:
       app_net:
     volumes:

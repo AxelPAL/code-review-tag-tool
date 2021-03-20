@@ -9,6 +9,8 @@ RUN pecl install -o -f redis \
 &&  rm -rf /tmp/pear \
 &&  docker-php-ext-enable redis
 
+RUN if [[ -z "$INSTALL_XDEBUG" ]] ; then pecl install xdebug && docker-php-ext-enable xdebug ; fi
+
 # install composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
