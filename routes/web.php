@@ -24,5 +24,5 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     Route::get('auth', [BitbucketController::class, 'auth'])->name('auth');
     Route::get('receiveOAuthCode', [BitbucketController::class, 'receiveOAuthCode'])->name('receiveOAuthCode');
+    Route::view('report', 'report')->name('report');
 });
-Route::view('report', 'report')->name('report');

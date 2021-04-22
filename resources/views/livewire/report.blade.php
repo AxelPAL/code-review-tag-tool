@@ -7,6 +7,7 @@
  * @var int $remoteUserId
  * @var array $tags
  * @var array $users
+ * @var Comment[] $comments
  */
 
 use App\Models\Report;
@@ -50,19 +51,48 @@ use Carbon\Carbon;
             <table class="table-auto report-table">
                 <thead>
                 <tr>
+                    <th class="border border-purple-300 px-4 py-2 text-grey-900 font-medium font-bold bg-gray-100">
+                        category
+                    </th>
                     @foreach($tags as $tag => $count)
-                        <th class="border border-purple-300 px-4 py-2 text-grey-900 font-medium font-bold">{{$tag}}</th>
+                        <th class="border border-purple-300 px-4 py-2 text-grey-900 font-medium font-bold">
+                            <a href="#" wire:click.prevent="$emit('showTagData', '{{$tag}}')">{{$tag}}</a>
+                        </th>
                     @endforeach
                 </tr>
                 </thead>
                 <tbody>
                 <tr class="bg-gray-200">
+                    <th class="border border-purple-300 px-4 py-2 text-grey-900 font-medium font-bold bg-gray-100">
+                        count
+                    </th>
                     @foreach($tags as $tag => $count)
-                        <td class="border border-purple-200 px-4 py-2 text-grey-800 font-medium">{{$count}}</td>
+                        <td class="border border-purple-200 px-4 py-2 text-grey-800 font-medium">
+                            <a href="#" wire:click.prevent="$emit('showTagData', '{{$tag}}')">{{$count}}</a>
+                        </td>
                     @endforeach
                 </tr>
                 </tbody>
             </table>
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="loading-block" wire:loading>
+                    Loading comments...
+                </div>
+                <div class="comments-block" wire:loading.remove>
+                    @foreach($comments as $parentId => $commentsArray)
+                        @foreach($commentsArray as $comment)
+                            <div class="comment-block">
+                                {{$parentId}}
+                                <div class="comment-block-image">
+                                    <img class="profile-avatar-image" src="{{$comment->remoteUser->avatar}}" alt="{{$comment->remoteUser->display_name}}">
+                                    <span class="profile-avatar-name">{{$comment->remoteUser->display_name}}</span>
+                                </div>
+                                <div class="comment-block-content">{!! $comment->content->html !!}</div>
+                            </div>
+                        @endforeach
+                    @endforeach
+                </div>
+            </div>
         </div>
     </div>
 </div>

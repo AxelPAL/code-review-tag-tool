@@ -2,7 +2,9 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\Comment;
 use App\Models\RemoteUser;
+use App\Repositories\CommentsRepository;
 use App\Repositories\RemoteUsersRepository;
 use App\Services\ReportAggregatorService;
 use Carbon\Carbon;
@@ -20,8 +22,11 @@ class Report extends Component
     public ?int $remoteUserId = null;
     public array $tags = [];
     public array $users = [];
+    public array $comments = [];
 
     protected $queryString = ['fromDate', 'toDate', 'remoteUserId']; //@phpstan-ignore-line
+
+    protected $listeners = ['showTagData'];
 
     public function render(): Factory | View | Application
     {
@@ -48,6 +53,25 @@ class Report extends Component
         }
     }
 
+    public function showTagData(string $tag): void
+    {
+        $this->comments = [];
+        $fromDate = new Carbon($this->fromDate);
+        $toDate = new Carbon($this->toDate);
+        $datePeriod = $fromDate->toPeriod($toDate);
+        if ($this->remoteUserId !== null) {
+            $comments = $this->getCommentsRepository()->findAllByDateUserAndTag(
+                $datePeriod,
+                $this->remoteUserId,
+                $tag
+            );
+            /** @var Comment[] $comments */
+            foreach ($comments as $comment) {
+                $this->comments[$comment->parent_remote_id][] = $comment;
+            }
+        }
+    }
+
     private function generateReportData(Carbon $fromDate, Carbon $toDate, int $remoteUserId): \App\Models\Report
     {
         return $this->getReportAggregatorService()->prepareReport($fromDate, $toDate, $remoteUserId);
@@ -61,6 +85,7 @@ class Report extends Component
             /** @var RemoteUser $remoteUser */
             $users[$remoteUser->id] = $remoteUser->display_name;
         }
+        asort($users);
 
         return $users;
     }
@@ -73,5 +98,10 @@ class Report extends Component
     private function getRemoteUsersRepository(): RemoteUsersRepository
     {
         return resolve(RemoteUsersRepository::class);
+    }
+
+    private function getCommentsRepository(): CommentsRepository
+    {
+        return resolve(CommentsRepository::class);
     }
 }

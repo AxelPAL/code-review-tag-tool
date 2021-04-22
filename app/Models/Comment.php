@@ -26,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  *
  * @property CommentContent $content
+ * @property RemoteUser $remoteUser
  *
  * @method static Builder|Comment newModelQuery()
  * @method static Builder|Comment newQuery()
@@ -55,5 +56,10 @@ class Comment extends Model
     public function pullRequest(): BelongsTo
     {
         return $this->belongsTo(PullRequest::class);
+    }
+
+    public function remoteUser(): BelongsTo
+    {
+        return $this->belongsTo(RemoteUser::class);
     }
 }
