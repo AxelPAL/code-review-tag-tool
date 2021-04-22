@@ -46,7 +46,7 @@ class CommentsRepository
     ): Collection {
         $fromDateString = $datePeriod->getStartDate();
         $toDateString = $datePeriod->getEndDate();
-        $commentIds = DB::table('comments')
+        $commentQuery = DB::table('comments')
             ->join('comment_contents', 'comments.id', '=', 'comment_contents.comment_id')
             ->join('pull_requests', 'comments.pull_request_id', '=', 'pull_requests.id')
             ->select('comments.id')
@@ -56,7 +56,8 @@ class CommentsRepository
             ])
             ->where('pull_requests.remote_author_id', '=', $remoteUserId)
             ->where('comment_contents.tag', '=', $tag)
-            ->get()->pluck('id');
+            ->get();
+        $commentIds = $commentQuery->pluck('id');
 
         return Comment::findMany($commentIds);
     }

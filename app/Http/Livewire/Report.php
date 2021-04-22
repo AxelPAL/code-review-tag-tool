@@ -26,7 +26,7 @@ class Report extends Component
 
     protected $queryString = ['fromDate', 'toDate', 'remoteUserId']; //@phpstan-ignore-line
 
-    protected $listeners = ['showTagData'];
+    protected $listeners = ['showTagData']; //@phpstan-ignore-line
 
     public function render(): Factory | View | Application
     {
