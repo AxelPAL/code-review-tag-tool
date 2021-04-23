@@ -26,7 +26,7 @@ class CommentsRepository
         $fromDateString = $fromDate->format(self::DB_DATE_FORMAT);
         $toDateString = $toDate->format(self::DB_DATE_FORMAT);
 
-        return Comment::whereHas('pullRequest', function ($query) use ($remoteUserId) {
+        return Comment::with('content')->whereHas('pullRequest', function ($query) use ($remoteUserId) {
             return $query->whereRemoteAuthorId($remoteUserId);
         })
             ->whereBetween('repository_created_at', [$fromDateString, $toDateString])
