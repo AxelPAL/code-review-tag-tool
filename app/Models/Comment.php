@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
@@ -61,5 +62,10 @@ class Comment extends Model
     public function remoteUser(): BelongsTo
     {
         return $this->belongsTo(RemoteUser::class);
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(__CLASS__, 'parent_remote_id', 'remote_id');
     }
 }

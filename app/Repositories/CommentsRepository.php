@@ -43,7 +43,7 @@ class CommentsRepository
         CarbonPeriod $datePeriod,
         int $remoteUserId,
         string $tag
-    ): Collection {
+    ): array {
         $fromDateString = $datePeriod->getStartDate();
         $toDateString = $datePeriod->getEndDate();
         $commentQuery = DB::table('comments')
@@ -59,6 +59,8 @@ class CommentsRepository
             ->get();
         $commentIds = $commentQuery->pluck('id');
 
-        return Comment::findMany($commentIds);
+        return Comment::with(['remoteUser', 'content', 'children.content', 'children.remoteUser'])
+            ->findMany($commentIds)
+            ->toArray();
     }
 }

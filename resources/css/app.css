@@ -17,17 +17,14 @@
     padding: 10px;
 }
 
-.loading-block {
-    padding: 20px;
-    margin: 20px;
-}
-
-.comment-block {
-    padding: 20px;
-    margin: 20px;
+.comment-block, .comment-block-children {
     border: 1px solid #505050;
     border-radius: 5px;
     background-color: #eeeeee;
+}
+
+.comment-block-children {
+    border-width: 0;
 }
 
 .comment-block-image {

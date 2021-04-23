@@ -23,6 +23,7 @@ class Report extends Component
     public array $tags = [];
     public array $users = [];
     public array $comments = [];
+    public ?int $commentsId = null;
 
     protected $queryString = ['fromDate', 'toDate', 'remoteUserId']; //@phpstan-ignore-line
 
@@ -43,6 +44,7 @@ class Report extends Component
     {
         $this->mount();
         $this->users = $this->getAllUsers();
+        $this->checkComments();
         if (!empty($this->fromDate) && !empty($this->toDate) && !empty($this->remoteUserId)) {
             $report = $this->generateReportData(
                 new Carbon($this->fromDate),
@@ -53,8 +55,13 @@ class Report extends Component
         }
     }
 
+    public function loadingComments(): void
+    {
+    }
+
     public function showTagData(string $tag): void
     {
+        $this->commentsId = $this->remoteUserId;
         $this->comments = [];
         $fromDate = new Carbon($this->fromDate);
         $toDate = new Carbon($this->toDate);
@@ -67,7 +74,7 @@ class Report extends Component
             );
             /** @var Comment[] $comments */
             foreach ($comments as $comment) {
-                $this->comments[$comment->parent_remote_id][] = $comment;
+                $this->comments[$comment['parent_remote_id']][] = $comment;
             }
         }
     }
@@ -103,5 +110,12 @@ class Report extends Component
     private function getCommentsRepository(): CommentsRepository
     {
         return resolve(CommentsRepository::class);
+    }
+
+    private function checkComments(): void
+    {
+        if ($this->remoteUserId !== $this->commentsId) {
+            $this->comments = [];
+        }
     }
 }

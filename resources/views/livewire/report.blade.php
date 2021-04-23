@@ -48,6 +48,7 @@ use Carbon\Carbon;
                 </table>
             </form>
 
+            @if (!empty($tags))
             <table class="table-auto report-table">
                 <thead>
                 <tr>
@@ -56,7 +57,7 @@ use Carbon\Carbon;
                     </th>
                     @foreach($tags as $tag => $count)
                         <th class="border border-purple-300 px-4 py-2 text-grey-900 font-medium font-bold">
-                            <a href="#" wire:click.prevent="$emit('showTagData', '{{$tag}}')">{{$tag}}</a>
+                            <a href="#" wire:click="loadingComments" wire:click.prevent="$emit('showTagData', '{{$tag}}')">{{$tag}}</a>
                         </th>
                     @endforeach
                 </tr>
@@ -68,26 +69,41 @@ use Carbon\Carbon;
                     </th>
                     @foreach($tags as $tag => $count)
                         <td class="border border-purple-200 px-4 py-2 text-grey-800 font-medium">
-                            <a href="#" wire:click.prevent="$emit('showTagData', '{{$tag}}')">{{$count}}</a>
+                            <a href="#" wire:click="loadingComments" wire:click.prevent="$emit('showTagData', '{{$tag}}')">{{$count}}</a>
                         </td>
                     @endforeach
                 </tr>
                 </tbody>
             </table>
+            @else
+                <div class="p-5 bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                    No comments for selected time period
+                </div>
+            @endif
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                <div class="loading-block" wire:loading>
+                <div class="p-5 m-5 loading-block" wire:loading wire:target="loadingComments">
                     Loading comments...
                 </div>
                 <div class="comments-block" wire:loading.remove>
                     @foreach($comments as $parentId => $commentsArray)
                         @foreach($commentsArray as $comment)
-                            <div class="comment-block">
-                                {{$parentId}}
-                                <div class="comment-block-image">
-                                    <img class="profile-avatar-image" src="{{$comment->remoteUser->avatar}}" alt="{{$comment->remoteUser->display_name}}">
-                                    <span class="profile-avatar-name">{{$comment->remoteUser->display_name}}</span>
-                                </div>
-                                <div class="comment-block-content">{!! $comment->content->html !!}</div>
+                            <div class="comment-block p-5 m-5">
+                                @if ($comment['remote_user'] !== null)
+                                    <div class="comment-block-image">
+                                        <img class="profile-avatar-image" src="{{$comment['remote_user']['avatar']}}" alt="{{$comment['remote_user']['display_name']}}">
+                                        <span class="profile-avatar-name">{{$comment['remote_user']['display_name']}}</span>
+                                    </div>
+                                @endif
+                                <div class="comment-block-content">{!! $comment['content']['html'] !!}</div>
+                                @foreach($comment['children'] as $childComment)
+                                    <div class="comment-block-children m-0 pl-2">
+                                        <div class="comment-block-image">
+                                            <img class="profile-avatar-image" src="{{$childComment['remote_user']['avatar']}}" alt="{{$childComment['remote_user']['display_name']}}">
+                                            <span class="profile-avatar-name">{{$childComment['remote_user']['display_name']}}</span>
+                                        </div>
+                                        <div class="comment-block-content">{!! $childComment['content']['html'] !!}</div>
+                                    </div>
+                                @endforeach
                             </div>
                         @endforeach
                     @endforeach
