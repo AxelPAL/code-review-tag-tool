@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Services;
@@ -11,7 +12,6 @@ use App\Repositories\UserBitbucketTokenRepository;
 use Bitbucket\Api\ApiInterface;
 use Bitbucket\Client;
 use Bitbucket\ResultPager;
-use Cache;
 use Generator;
 use GrahamCampbell\Bitbucket\BitbucketManager;
 use Http;
@@ -19,6 +19,7 @@ use Http\Client\Exception;
 use Illuminate\Support\Carbon;
 use LogicException;
 use RuntimeException;
+use Bitbucket\Exception\RuntimeException as BitbucketRuntimeException;
 
 class BitbucketService
 {
@@ -26,7 +27,6 @@ class BitbucketService
 
     public function __construct(
         private BitbucketManager $bitbucket,
-        private Cache $cache,
         private EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory,
         public UserBitbucketTokenRepository $bitbucketTokenRepository,
         public UserBitbucketSecretsRepository $userBitbucketSecretsRepository,
@@ -69,7 +69,7 @@ class BitbucketService
     }
 
     /**
-     * @return array
+     * @return array<string, string>
      * @throws Exception
      */
     public function getAvailableWorkspaces(): array
@@ -198,6 +198,30 @@ class BitbucketService
         return $this->saveBitbucketTokenData($data, $userId);
     }
 
+    /**
+     * @throws Exception
+     */
+    public function getUsersInfo(): array
+    {
+        $users = [];
+        foreach ($this->getAvailableWorkspaces() as $availableWorkspace => $name) {
+            $query = $this->bitbucket->workspaces($availableWorkspace)->members();
+            try {
+                foreach ($this->getAllListPages($query) as $userInfo) {
+                    $users[] = $userInfo['user'];
+                }
+            } catch (BitbucketRuntimeException $e) {
+            }
+        }
+
+        return $users;
+    }
+
+    public function updateRemoteUser(array $userInfo): void
+    {
+        $this->entitiesFromBitbucketFactory->createOrUpdateRemoteUser($userInfo);
+    }
+
     private function saveBitbucketTokenData(array $data, int $userId): bool
     {
         $userBitbucketToken = $this->bitbucketTokenRepository->findByUserId($userId);
@@ -225,5 +249,4 @@ class BitbucketService
             );
         }
     }
-
 }

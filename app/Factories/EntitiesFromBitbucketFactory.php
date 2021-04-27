@@ -185,14 +185,33 @@ class EntitiesFromBitbucketFactory
         $remoteUser = $this->remoteUsersRepository->findByUUID($bitbucketApiData['uuid']);
         if ($remoteUser === null) {
             $remoteUser = new RemoteUser();
-            $remoteUser->account_id = $bitbucketApiData['account_id'];
-            $remoteUser->nickname = $bitbucketApiData['nickname'];
-            $remoteUser->display_name = $bitbucketApiData['display_name'];
-            $remoteUser->uuid = $bitbucketApiData['uuid'];
-            $remoteUser->web_link = $bitbucketApiData['links']['html']['href'];
-            $remoteUser->avatar = $bitbucketApiData['links']['avatar']['href'];
+            $this->setRemoteUserFields($remoteUser, $bitbucketApiData);
             $this->remoteUsersRepository->save($remoteUser);
         }
+
+        return $remoteUser;
+    }
+
+    public function createOrUpdateRemoteUser(array $bitbucketApiData): ?RemoteUser
+    {
+        $remoteUser = $this->remoteUsersRepository->findByUUID($bitbucketApiData['uuid']);
+        if ($remoteUser === null) {
+            $remoteUser = new RemoteUser();
+        }
+        $this->setRemoteUserFields($remoteUser, $bitbucketApiData);
+        $this->remoteUsersRepository->save($remoteUser);
+
+        return $remoteUser;
+    }
+
+    protected function setRemoteUserFields(RemoteUser $remoteUser, array $bitbucketApiData): RemoteUser
+    {
+        $remoteUser->account_id = $bitbucketApiData['account_id'];
+        $remoteUser->nickname = $bitbucketApiData['nickname'];
+        $remoteUser->display_name = $bitbucketApiData['display_name'];
+        $remoteUser->uuid = $bitbucketApiData['uuid'];
+        $remoteUser->web_link = $bitbucketApiData['links']['html']['href'];
+        $remoteUser->avatar = $bitbucketApiData['links']['avatar']['href'];
 
         return $remoteUser;
     }
@@ -209,7 +228,7 @@ class EntitiesFromBitbucketFactory
             $saved = $this->commentsRepository->save($comment);
         } catch (Throwable) {
             Log::warning('cannot save comment', [
-                'comment' => json_encode($comment->getAttributes(), JSON_THROW_ON_ERROR)
+                'comment' => json_encode($comment->getAttributes(), JSON_THROW_ON_ERROR),
             ]);
         }
         return $saved;

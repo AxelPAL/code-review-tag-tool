@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\ParseComments;
 use App\Console\Commands\PullRequests;
+use App\Console\Commands\UsersUpdate;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -29,6 +30,7 @@ class Kernel extends ConsoleKernel
         $schedule->command(PullRequests::class, ['--onlyActive'])->everyFourHours();
         $schedule->command(PullRequests::class)->dailyAt('02:00')->withoutOverlapping();
         $schedule->command(ParseComments::class)->daily()->withoutOverlapping();
+        $schedule->command(UsersUpdate::class)->dailyAt('15:00')->withoutOverlapping();
     }
 
     /**

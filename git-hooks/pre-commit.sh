@@ -18,11 +18,6 @@ if [[ $phpFilesCount = 0 ]]; then
 	exit 0;
 fi
 
-if [[ $phpFilesCount -gt 2 ]]; then
-	args="$args --report=summary"
-fi
-
-TERM=xterm ./vendor/bin/phpcbf $args $commitFiles
 TERM=xterm ./vendor/bin/phpcs $args $commitFiles
 
 if [ $? -ne 0 ]; then
