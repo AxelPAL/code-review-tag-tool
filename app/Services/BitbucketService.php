@@ -76,7 +76,7 @@ class BitbucketService
     {
         $workspaces = [];
         foreach ($this->bitbucket->currentUser()->listWorkspaces()['values'] as $workspace) {
-            $workspaces[$workspace['slug']] = $workspace['name'];
+            $workspaces[(string)$workspace['slug']] = $workspace['name'];
         }
 
         return $workspaces;
