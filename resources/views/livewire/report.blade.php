@@ -94,11 +94,14 @@ use Carbon\Carbon;
                                     <div class="comment-block-image">
                                         <img class="profile-avatar-image" src="{{$comment['remote_user']['avatar']}}"
                                              alt="{{$comment['remote_user']['display_name']}}">
-                                        <span class="profile-avatar-name">
-                                            <a href="{{$comment['web_link']}}">
+                                        <a href="{{$comment['web_link']}}">
+                                            <span class="profile-avatar-name">
                                                 {{$comment['remote_user']['display_name']}}
-                                            </a>
-                                        </span>
+                                            </span>
+                                            <span class="comment-date">
+                                                ({{$comment['repository_updated_at']}})
+                                            </span>
+                                        </a>
                                     </div>
                                 @endif
                                 <div class="comment-block-content">{!! $comment['content']['html'] !!}</div>
@@ -108,11 +111,14 @@ use Carbon\Carbon;
                                             <img class="profile-avatar-image"
                                                  src="{{$childComment['remote_user']['avatar']}}"
                                                  alt="{{$childComment['remote_user']['display_name']}}">
-                                            <span class="profile-avatar-name">
-                                                <a href="{{$childComment['web_link']}}">
+                                            <a href="{{$childComment['web_link']}}">
+                                                <span class="profile-avatar-name">
                                                     {{$childComment['remote_user']['display_name']}}
-                                                </a>
-                                            </span>
+                                                </span>
+                                                    <span class="comment-date">
+                                                    ({{$childComment['repository_updated_at']}})
+                                                </span>
+                                            </a>
                                         </div>
                                         <div class="comment-block-content">
                                             {!! $childComment['content']['html'] !!}
