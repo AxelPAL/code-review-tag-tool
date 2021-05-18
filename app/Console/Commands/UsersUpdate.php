@@ -8,8 +8,8 @@ use Illuminate\Console\Command;
 
 class UsersUpdate extends Command
 {
-    protected $signature = 'app:users-update'; //@phpstan-ignore-line
-    protected $description = 'Update users info'; //@phpstan-ignore-line
+    protected $signature = 'app:users-update';
+    protected $description = 'Update users info';
     private BitbucketServiceInterface $bitbucketService;
 
     public function __construct(BitbucketServiceInterface $bitbucketService)

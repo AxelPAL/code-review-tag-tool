@@ -8,8 +8,8 @@ use Illuminate\Console\Command;
 
 class ParseComments extends Command
 {
-    protected $signature = 'app:parse-comments {--onlyActive}'; //@phpstan-ignore-line
-    protected $description = 'Parse all new comments'; //@phpstan-ignore-line
+    protected $signature = 'app:parse-comments {--onlyActive}';
+    protected $description = 'Parse all new comments';
     private CommentsCollectorServiceInterface $commentsCollector;
 
     public function __construct(CommentsCollectorServiceInterface $commentsCollector)

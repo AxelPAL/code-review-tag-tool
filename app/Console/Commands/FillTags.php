@@ -16,14 +16,14 @@ class FillTags extends Command
      *
      * @var string
      */
-    protected $signature = 'app:fill-tags'; //@phpstan-ignore-line
+    protected $signature = 'app:fill-tags';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Fill tags for all comments that don\'t have it'; //@phpstan-ignore-line
+    protected $description = 'Fill tags for all comments that don\'t have it';
 
     protected ProgressBar $progressBar;
 

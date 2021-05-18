@@ -13,14 +13,14 @@ class PullRequests extends Command
      *
      * @var string
      */
-    protected $signature = 'app:fetch-pull-requests {--onlyActive}'; //@phpstan-ignore-line
+    protected $signature = 'app:fetch-pull-requests {--onlyActive}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get all new pull requests'; //@phpstan-ignore-line
+    protected $description = 'Get all new pull requests';
 
 
     private PullRequestsCollectorServiceInterface $pullRequestsCollector;

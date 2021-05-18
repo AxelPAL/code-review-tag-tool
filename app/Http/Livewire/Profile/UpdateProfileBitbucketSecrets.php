@@ -43,7 +43,10 @@ class UpdateProfileBitbucketSecrets extends Component
             $userBitbucketSecrets = new UserBitbucketSecrets();
             $userBitbucketSecrets->client_id = '';
             $userBitbucketSecrets->client_secret = '';
-            $userBitbucketSecrets->user_id = request()?->user()->id ?? null;
+            $request = request();
+            $userBitbucketSecrets->user_id = ($request !== null && $request->user() !== null)
+                ? $request->user()->id
+                : null;
         }
 
         return $userBitbucketSecrets;
