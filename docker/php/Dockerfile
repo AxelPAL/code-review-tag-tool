@@ -3,7 +3,7 @@ FROM php:8.0-fpm-alpine
 RUN set -ex \
   && apk --no-cache add \
     postgresql-dev bash nodejs npm git autoconf build-base pcre-dev supervisor
-RUN docker-php-ext-install pdo pdo_pgsql
+RUN docker-php-ext-install pdo pdo_pgsql pcntl
 
 RUN pecl install -o -f redis \
 &&  rm -rf /tmp/pear \
