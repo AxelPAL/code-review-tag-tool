@@ -2,8 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\BitbucketService;
-use App\Services\PullRequestsCollectorService;
+use App\Contracts\Services\PullRequestsCollectorServiceInterface;
 use Http\Client\Exception;
 use Illuminate\Console\Command;
 
@@ -14,20 +13,20 @@ class PullRequests extends Command
      *
      * @var string
      */
-    protected $signature = 'app:fetch-pull-requests {--onlyActive}';
+    protected $signature = 'app:fetch-pull-requests {--onlyActive}'; //@phpstan-ignore-line
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get all new pull requests';
+    protected $description = 'Get all new pull requests'; //@phpstan-ignore-line
 
 
-    private PullRequestsCollectorService $pullRequestsCollector;
+    private PullRequestsCollectorServiceInterface $pullRequestsCollector;
 
     public function __construct(
-        PullRequestsCollectorService $pullRequestsCollector
+        PullRequestsCollectorServiceInterface $pullRequestsCollector
     ) {
         parent::__construct();
         $this->pullRequestsCollector = $pullRequestsCollector;

@@ -12,14 +12,14 @@ class QueueSize extends Command
      *
      * @var string
      */
-    protected $signature = 'queue:size';
+    protected $signature = 'queue:size'; //@phpstan-ignore-line
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Showing size of the default queue';
+    protected $description = 'Showing size of the default queue'; //@phpstan-ignore-line
 
     /**
      * Execute the console command.

@@ -2,17 +2,22 @@
 
 namespace App\Http\Livewire;
 
+use App\Contracts\Services\ReportAggregatorServiceInterface;
 use App\Models\Comment;
 use App\Models\RemoteUser;
 use App\Repositories\CommentsRepository;
 use App\Repositories\RemoteUsersRepository;
-use App\Services\ReportAggregatorService;
 use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
+/**
+ * Class Report
+ * @package App\Http\Livewire
+ * @uses Report::showTagData()
+ */
 class Report extends Component
 {
     private const DEFAULT_USERS_DROPDOWN_VALUE = 0;
@@ -86,20 +91,20 @@ class Report extends Component
 
     private function getAllUsers(): array
     {
-        $users = [self::DEFAULT_USERS_DROPDOWN_VALUE => 'Choose developer'];
+        $users = ['Choose developer' => self::DEFAULT_USERS_DROPDOWN_VALUE];
         $remoteUsers = $this->getRemoteUsersRepository()->getAll();
         foreach ($remoteUsers as $remoteUser) {
             /** @var RemoteUser $remoteUser */
-            $users[$remoteUser->id] = $remoteUser->display_name;
+            $users[$remoteUser->display_name] = $remoteUser->id;
         }
-        asort($users);
+        ksort($users);
 
         return $users;
     }
 
-    private function getReportAggregatorService(): ReportAggregatorService
+    private function getReportAggregatorService(): ReportAggregatorServiceInterface
     {
-        return resolve(ReportAggregatorService::class);
+        return resolve(ReportAggregatorServiceInterface::class);
     }
 
     private function getRemoteUsersRepository(): RemoteUsersRepository

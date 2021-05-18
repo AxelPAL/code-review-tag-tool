@@ -2,17 +2,17 @@
 
 namespace App\Console\Commands;
 
-use App\Services\BitbucketService;
+use App\Contracts\Services\BitbucketServiceInterface;
 use Http\Client\Exception;
 use Illuminate\Console\Command;
 
 class UsersUpdate extends Command
 {
-    protected $signature = 'app:users-update';
-    protected $description = 'Update users info';
-    private BitbucketService $bitbucketService;
+    protected $signature = 'app:users-update'; //@phpstan-ignore-line
+    protected $description = 'Update users info'; //@phpstan-ignore-line
+    private BitbucketServiceInterface $bitbucketService;
 
-    public function __construct(BitbucketService $bitbucketService)
+    public function __construct(BitbucketServiceInterface $bitbucketService)
     {
         parent::__construct();
         $this->bitbucketService = $bitbucketService;

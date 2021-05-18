@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Contracts\Services\TagParsingServiceInterface;
 use App\Models\CommentContent;
 use App\Repositories\CommentContentsRepository;
-use App\Services\TagParsingService;
 use Illuminate\Console\Command;
 use Illuminate\Support\LazyCollection;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -16,14 +16,14 @@ class FillTags extends Command
      *
      * @var string
      */
-    protected $signature = 'app:fill-tags';
+    protected $signature = 'app:fill-tags'; //@phpstan-ignore-line
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Fill tags for all comments that don\'t have it';
+    protected $description = 'Fill tags for all comments that don\'t have it'; //@phpstan-ignore-line
 
     protected ProgressBar $progressBar;
 
@@ -33,13 +33,13 @@ class FillTags extends Command
     private CommentContentsRepository $commentContentsRepository;
 
     /**
-     * @var TagParsingService
+     * @var TagParsingServiceInterface
      */
-    private TagParsingService $tagParsingService;
+    private TagParsingServiceInterface $tagParsingService;
 
     public function __construct(
         CommentContentsRepository $commentContentsRepository,
-        TagParsingService $tagParsingService
+        TagParsingServiceInterface $tagParsingService
     ) {
         parent::__construct();
         $this->commentContentsRepository = $commentContentsRepository;
@@ -84,12 +84,10 @@ class FillTags extends Command
         $this->progressBar->finish();
     }
 
-    private function tryToParseAndUpdateCommentContent(CommentContent $dbComment): bool
+    private function tryToParseAndUpdateCommentContent(CommentContent $dbComment): void
     {
         $dbComment->tag = $this->tagParsingService->getTagFromCommentContent($dbComment->html);
-        $return = $this->commentContentsRepository->save($dbComment);
+        $this->commentContentsRepository->save($dbComment);
         $this->progressBar->advance();
-
-        return $return;
     }
 }

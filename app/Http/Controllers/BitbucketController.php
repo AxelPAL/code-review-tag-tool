@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Services\BitbucketServiceInterface;
 use App\Repositories\UserBitbucketTokenRepository;
-use App\Services\BitbucketService;
 use App\Traits\UserInsideControllerTrait;
 use Cache;
 use Http\Client\Exception;
@@ -18,12 +18,12 @@ class BitbucketController extends Controller
     use UserInsideControllerTrait;
 
     /**
-     * @var BitbucketService
+     * @var BitbucketServiceInterface
      */
-    private BitbucketService $bitbucketService;
+    private BitbucketServiceInterface $bitbucketService;
 
     public function __construct(
-        BitbucketService $bitbucketService,
+        BitbucketServiceInterface $bitbucketService,
         public UserBitbucketTokenRepository $userBitbucketTokenRepository,
         public Request $request
     ) {
@@ -88,7 +88,7 @@ class BitbucketController extends Controller
         $pullRequests = Cache::remember(
             $cacheKey,
             3600,
-            function() use($workspace, $repository, $request){
+            function () use ($workspace, $repository, $request) {
                 $this->bitbucketService->init($request->user()->id);
                 return $this->bitbucketService->getPullRequests($workspace, $repository);
             }

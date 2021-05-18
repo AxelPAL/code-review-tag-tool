@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\Services\BitbucketServiceInterface;
 use App\Factories\EntitiesFromBitbucketFactory;
 use App\Models\PullRequest;
 use App\Models\UserBitbucketToken;
@@ -21,10 +22,8 @@ use LogicException;
 use RuntimeException;
 use Bitbucket\Exception\RuntimeException as BitbucketRuntimeException;
 
-class BitbucketService
+class BitbucketService implements BitbucketServiceInterface
 {
-    public const ADMIN_USER_ID = 1;
-
     public function __construct(
         private BitbucketManager $bitbucket,
         private EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory,
@@ -212,7 +211,7 @@ class BitbucketService
                 foreach ($this->getAllListPages($query) as $userInfo) {
                     $users[] = $userInfo['user'];
                 }
-            } catch (BitbucketRuntimeException $e) {
+            } catch (BitbucketRuntimeException) {
             }
         }
 

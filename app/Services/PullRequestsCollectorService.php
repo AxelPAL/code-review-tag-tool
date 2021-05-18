@@ -2,25 +2,27 @@
 
 namespace App\Services;
 
+use App\Contracts\Services\BitbucketServiceInterface;
+use App\Contracts\Services\PullRequestsCollectorServiceInterface;
 use App\Models\Repository;
 use App\Repositories\RepositoriesRepository;
 use Http\Client\Exception;
 use Illuminate\Database\Eloquent\Collection;
 
-class PullRequestsCollectorService
+class PullRequestsCollectorService implements PullRequestsCollectorServiceInterface
 {
-    private BitbucketService $bitbucketService;
+    private BitbucketServiceInterface $bitbucketService;
     /**
      * @var RepositoriesRepository
      */
     private RepositoriesRepository $repositoriesRepository;
 
     public function __construct(
-        BitbucketService $bitbucketService,
+        BitbucketServiceInterface $bitbucketService,
         RepositoriesRepository $repositoriesRepository
     ) {
         $this->bitbucketService = $bitbucketService;
-        $this->bitbucketService->init(BitbucketService::ADMIN_USER_ID);
+        $this->bitbucketService->init(BitbucketServiceInterface::ADMIN_USER_ID);
         $this->repositoriesRepository = $repositoriesRepository;
     }
 
@@ -57,7 +59,7 @@ class PullRequestsCollectorService
     /**
      * @return Repository[]|Collection
      */
-    protected function getAllRepositories()
+    protected function getAllRepositories(): Collection|array
     {
         return $this->repositoriesRepository->getAll();
     }

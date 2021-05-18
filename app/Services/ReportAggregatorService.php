@@ -2,18 +2,17 @@
 
 namespace App\Services;
 
+use App\Contracts\Services\ReportAggregatorServiceInterface;
 use App\Models\Comment;
 use App\Models\Report;
 use App\Repositories\CommentsRepository;
 use Carbon\Carbon;
 
-class ReportAggregatorService
+class ReportAggregatorService implements ReportAggregatorServiceInterface
 {
     public function __construct(
         public CommentsRepository $commentsRepository
-    )
-    {
-
+    ) {
     }
 
     public function prepareReport(Carbon $fromDate, Carbon $toDate, int $remoteUserId): Report

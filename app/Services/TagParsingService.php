@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\Services\TagParsingServiceInterface;
 use JetBrains\PhpStorm\Pure;
 
-class TagParsingService
+class TagParsingService implements TagParsingServiceInterface
 {
     public function getTagFromCommentContent(string $content): ?string
     {
@@ -37,7 +38,7 @@ class TagParsingService
         if (!str_starts_with($content, '[')) {
             $tag = null;
         } else {
-            preg_match('/\[(.+?)\].+/', $content, $matches);
+            preg_match('/\[(.+?)].+/', $content, $matches);
             $tag = $matches[1] ?? null;
         }
 

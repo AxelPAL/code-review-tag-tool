@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Contracts\Services\BitbucketServiceInterface;
+use App\Contracts\Services\CommentsCollectorServiceInterface;
 use App\Dto\PullRequestCollectorDto;
 use App\Dto\PullRequestsCollectorDto;
 use App\Factories\EntitiesFromBitbucketFactory;
@@ -11,12 +13,12 @@ use App\Repositories\RepositoriesRepository;
 use Http\Client\Exception;
 use JsonException;
 
-class CommentsCollectorService
+class CommentsCollectorService implements CommentsCollectorServiceInterface
 {
     /**
-     * @var BitbucketService
+     * @var BitbucketServiceInterface
      */
-    private BitbucketService $bitbucketService;
+    private BitbucketServiceInterface $bitbucketService;
     /**
      * @var RepositoriesRepository
      */
@@ -31,7 +33,7 @@ class CommentsCollectorService
     private EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory;
 
     public function __construct(
-        BitbucketService $bitbucketService,
+        BitbucketServiceInterface $bitbucketService,
         RepositoriesRepository $repositoriesRepository,
         PullRequestsRepository $pullRequestsRepository,
         EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory
@@ -40,7 +42,7 @@ class CommentsCollectorService
         $this->repositoriesRepository = $repositoriesRepository;
         $this->pullRequestsRepository = $pullRequestsRepository;
         $this->entitiesFromBitbucketFactory = $entitiesFromBitbucketFactory;
-        $this->bitbucketService->init(BitbucketService::ADMIN_USER_ID);
+        $this->bitbucketService->init(BitbucketServiceInterface::ADMIN_USER_ID);
     }
 
     public function collectAllPullRequestsForProcessing(): PullRequestsCollectorDto

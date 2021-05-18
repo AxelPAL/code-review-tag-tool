@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\Services\BitbucketUsersServiceInterface;
 use App\Dto\BitbucketUserDto;
 use App\Models\BitbucketUser;
 use App\Exceptions\SaveException;
 use App\Repositories\BitbucketUsersRepository;
 use JsonException;
 
-class BitbucketUsersService
+class BitbucketUsersService implements BitbucketUsersServiceInterface
 {
     /**
      * @var BitbucketUsersRepository
@@ -37,7 +38,9 @@ class BitbucketUsersService
         $bitbucketUser->type = $bitbucketUserDto->type;
         $bitbucketUser->account_id = $bitbucketUserDto->accountId;
         if (!$this->bitbucketUsersRepository->save($bitbucketUser)) {
-            throw new SaveException('Cannot save user with params: ' . json_encode($bitbucketUserDto, JSON_THROW_ON_ERROR));
+            throw new SaveException(
+                'Cannot save user with params: ' . json_encode($bitbucketUserDto, JSON_THROW_ON_ERROR)
+            );
         }
     }
 

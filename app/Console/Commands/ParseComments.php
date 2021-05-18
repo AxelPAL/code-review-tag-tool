@@ -2,17 +2,17 @@
 
 namespace App\Console\Commands;
 
+use App\Contracts\Services\CommentsCollectorServiceInterface;
 use App\Jobs\ProcessPullRequest;
-use App\Services\CommentsCollectorService;
 use Illuminate\Console\Command;
 
 class ParseComments extends Command
 {
-    protected $signature = 'app:parse-comments {--onlyActive}';
-    protected $description = 'Parse all new comments';
-    private CommentsCollectorService $commentsCollector;
+    protected $signature = 'app:parse-comments {--onlyActive}'; //@phpstan-ignore-line
+    protected $description = 'Parse all new comments'; //@phpstan-ignore-line
+    private CommentsCollectorServiceInterface $commentsCollector;
 
-    public function __construct(CommentsCollectorService $commentsCollector)
+    public function __construct(CommentsCollectorServiceInterface $commentsCollector)
     {
         $this->commentsCollector = $commentsCollector;
         parent::__construct();

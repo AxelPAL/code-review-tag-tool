@@ -2,10 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Contracts\Services\CommentsCollectorServiceInterface;
 use App\Dto\PullRequestCollectorDto;
 use App\Models\PullRequest;
 use App\Models\Repository;
-use App\Services\CommentsCollectorService;
 use Http\Client\Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -33,12 +33,12 @@ class ProcessPullRequest implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param CommentsCollectorService $commentsCollector
+     * @param CommentsCollectorServiceInterface $commentsCollector
      * @return void
      * @throws Exception
      * @throws JsonException
      */
-    public function handle(CommentsCollectorService $commentsCollector): void
+    public function handle(CommentsCollectorServiceInterface $commentsCollector): void
     {
         $commentsCollectorPullRequestDto = new PullRequestCollectorDto();
         $commentsCollectorPullRequestDto->pullRequest = $this->pullRequest;

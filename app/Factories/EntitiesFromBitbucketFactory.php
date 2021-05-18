@@ -2,6 +2,7 @@
 
 namespace App\Factories;
 
+use App\Contracts\Services\TagParsingServiceInterface;
 use App\Models\Comment;
 use App\Models\CommentContent;
 use App\Models\PullRequest;
@@ -12,7 +13,6 @@ use App\Repositories\CommentsRepository;
 use App\Repositories\PullRequestsRepository;
 use App\Repositories\RemoteUsersRepository;
 use App\Repositories\RepositoriesRepository;
-use App\Services\TagParsingService;
 use JsonException;
 use Log;
 use Throwable;
@@ -45,9 +45,9 @@ class EntitiesFromBitbucketFactory
     private RemoteUsersRepository $remoteUsersRepository;
 
     /**
-     * @var TagParsingService
+     * @var TagParsingServiceInterface
      */
-    private TagParsingService $tagParsingService;
+    private TagParsingServiceInterface $tagParsingService;
 
     public function __construct(
         RepositoriesRepository $repositoriesRepository,
@@ -55,7 +55,7 @@ class EntitiesFromBitbucketFactory
         CommentsRepository $commentsRepository,
         CommentContentsRepository $commentContentsRepository,
         RemoteUsersRepository $remoteUsersRepository,
-        TagParsingService $tagParsingService
+        TagParsingServiceInterface $tagParsingService
     ) {
         $this->repositoriesRepository = $repositoriesRepository;
         $this->pullRequestsRepository = $pullRequestsRepository;
