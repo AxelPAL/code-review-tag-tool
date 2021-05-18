@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Contracts\Services\BitbucketServiceInterface;
+use Gate;
 use Laravel\Horizon\HorizonApplicationServiceProvider;
 
 class HorizonServiceProvider extends HorizonApplicationServiceProvider
@@ -25,5 +27,8 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
      */
     protected function gate()
     {
+        Gate::define('viewHorizon', function ($user) {
+            return $user->id === BitbucketServiceInterface::ADMIN_USER_ID;
+        });
     }
 }
