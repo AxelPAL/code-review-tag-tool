@@ -30,10 +30,23 @@ class UpdateProfileBitbucketSecrets extends Component
 
     public function mount(): void
     {
-        $bitbucketService = $this->getUserBitbucketSecretsRepository();
         if (auth()->id() !== null) {
-            $this->userBitbucketSecrets = $bitbucketService->findByUserId((int)auth()->id());
+            $this->userBitbucketSecrets = $this->getUserBitbucketSecrets();
         }
+    }
+
+    private function getUserBitbucketSecrets(): UserBitbucketSecrets
+    {
+        $bitbucketService = $this->getUserBitbucketSecretsRepository();
+        $userBitbucketSecrets = $bitbucketService->findByUserId((int)auth()->id());
+        if ($userBitbucketSecrets === null) {
+            $userBitbucketSecrets = new UserBitbucketSecrets();
+            $userBitbucketSecrets->client_id = '';
+            $userBitbucketSecrets->client_secret = '';
+            $userBitbucketSecrets->user_id = request()?->user()->id ?? null;
+        }
+
+        return $userBitbucketSecrets;
     }
 
     public function getUserBitbucketSecretsRepository(): UserBitbucketSecretsRepository
@@ -50,8 +63,8 @@ class UpdateProfileBitbucketSecrets extends Component
     private function loadData(): void
     {
         if ($this->userBitbucketSecrets !== null) {
-            $this->clientId = $this->userBitbucketSecrets->client_id;
-            $this->clientSecret = $this->userBitbucketSecrets->client_secret;
+            $this->clientId = $this->userBitbucketSecrets->client_id ?? '';
+            $this->clientSecret = $this->userBitbucketSecrets->client_secret ?? '';
         }
     }
 }

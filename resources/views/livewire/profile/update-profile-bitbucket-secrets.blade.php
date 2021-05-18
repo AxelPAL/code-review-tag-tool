@@ -4,7 +4,13 @@
     </x-slot>
 
     <x-slot name="description">
-        {{ __('Update your Bitbucket\'s client_id and client_secret.') }}
+        <p>
+            {{ __('Update your Bitbucket\'s client_id and client_secret.') }}
+        </p>
+        <p>
+            Here is a tutorial how to get them:
+            <a href="https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/">link</a>
+        </p>
     </x-slot>
 
     <x-slot name="form">

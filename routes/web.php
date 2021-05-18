@@ -20,9 +20,11 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             ->name('pullRequests');
         Route::get('comments/{workspace}/{repository}/{pullRequestId}', [BitbucketController::class, 'comments'])
             ->name('comments');
+        Route::view('report', 'report')->name('report')->middleware();
     });
 
     Route::get('auth', [BitbucketController::class, 'auth'])->name('auth');
     Route::get('receiveOAuthCode', [BitbucketController::class, 'receiveOAuthCode'])->name('receiveOAuthCode');
-    Route::view('report', 'report')->name('report');
 });
+
+Route::view('specify-credentials', 'errors.specify-credentials')->name('specify-credentials');

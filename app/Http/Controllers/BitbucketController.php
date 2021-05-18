@@ -61,11 +61,13 @@ class BitbucketController extends Controller
 
     /**
      * @param string $workspace
+     * @param Request $request
      * @return Application|Factory|RedirectResponse|View
      * @throws Exception
      */
-    public function repositories(string $workspace): Factory|View|Application|RedirectResponse
+    public function repositories(string $workspace, Request $request): Factory|View|Application|RedirectResponse
     {
+        $this->bitbucketService->init($request->user()->id);
         $repositories = $this->bitbucketService->getAvailableRepositories($workspace);
 
         return view('repositories', compact('repositories', 'workspace'));
@@ -74,17 +76,22 @@ class BitbucketController extends Controller
     /**
      * @param string $workspace
      * @param string $repository
+     * @param Request $request
      * @return Application|Factory|\Illuminate\Contracts\View\View|RedirectResponse
      */
     public function pullRequests(
         string $workspace,
-        string $repository
+        string $repository,
+        Request $request
     ): Factory|\Illuminate\Contracts\View\View|Application|RedirectResponse {
         $cacheKey = $workspace . $repository;
         $pullRequests = Cache::remember(
             $cacheKey,
             3600,
-            fn() => $this->bitbucketService->getPullRequests($workspace, $repository)
+            function() use($workspace, $repository, $request){
+                $this->bitbucketService->init($request->user()->id);
+                return $this->bitbucketService->getPullRequests($workspace, $repository);
+            }
         );
 
         return view('pullRequests', compact('pullRequests', 'workspace', 'repository'));
