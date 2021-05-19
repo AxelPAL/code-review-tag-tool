@@ -177,7 +177,7 @@ return [
     ],
 
     'environments' => [
-        'production' => [
+        'prod' => [
             'supervisor-1' => [
                 'maxProcesses'    => env('DEFAULT_WORKERS_COUNT'),
                 'balanceMaxShift' => 1,
