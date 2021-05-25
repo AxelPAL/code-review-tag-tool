@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Config;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +61,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware('web')
             ->namespace($this->namespace)
+            ->domain(Config::get('app.url'))
             ->group(base_path('routes/web.php'));
     }
 

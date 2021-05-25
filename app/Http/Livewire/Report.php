@@ -52,12 +52,17 @@ class Report extends Component
         $this->checkComments();
         if (!empty($this->fromDate) && !empty($this->toDate) && !empty($this->remoteUserId)) {
             $report = $this->generateReportData(
-                new Carbon($this->fromDate),
-                new Carbon($this->toDate),
+                new Carbon($this->filterDateValue($this->fromDate)),
+                new Carbon($this->filterDateValue($this->toDate)),
                 $this->remoteUserId
             );
             $this->tags = $report->tags;
         }
+    }
+
+    public function filterDateValue(string $value): string
+    {
+        return preg_replace('/[^0-9\-]/', '', $value);
     }
 
     public function loadingComments(): void

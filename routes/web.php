@@ -1,12 +1,11 @@
 <?php
 
 use App\Http\Controllers\BitbucketController;
-use App\Http\Controllers\ReportController;
 use App\Http\Middleware\TokenExistence;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
-    Route::middleware([TokenExistence::class])->group(function(){
+    Route::middleware([TokenExistence::class])->group(function () {
         Route::get('/dashboard', function () {
             return view('dashboard');
         })->name('dashboard');
@@ -20,7 +19,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             ->name('pullRequests');
         Route::get('comments/{workspace}/{repository}/{pullRequestId}', [BitbucketController::class, 'comments'])
             ->name('comments');
-        Route::view('report', 'report')->name('report')->middleware();
+        Route::view('report', 'report')->name('report');
     });
 
     Route::get('auth', [BitbucketController::class, 'auth'])->name('auth');
