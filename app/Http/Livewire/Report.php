@@ -60,7 +60,7 @@ class Report extends Component
         }
     }
 
-    public function filterDateValue(string $value): string
+    public function filterDateValue(string $value): ?string
     {
         return preg_replace('/[^0-9\-]/', '', $value);
     }
