@@ -58,7 +58,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           file: ./docker/php/Dockerfile
-          platforms: "linux/amd64,linux/arm64,linux/arm/v7"
+          platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
 
   build-nginx:
     runs-on: ubuntu-latest
@@ -105,6 +105,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           file: ./docker/nginx/Dockerfile
-          platforms: "linux/amd64,linux/arm64,linux/arm/v7"
+          platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
           build-args: |
             APP_IMAGE=axelpal/code-review-tag-tool-app:${{ env.GITHUB_REF_SLUG }}
