@@ -65,7 +65,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: axelpal/code-review-tag-tool-app:${{ env.GITHUB_REF_SLUG }}
-          run: touch /app/.env && ./artisan key:generate && ./artisan test
+          run: touch .env && ./artisan key:generate && ./artisan test
       - name: Static analysis
         uses: addnab/docker-run-action@v3
         with:
