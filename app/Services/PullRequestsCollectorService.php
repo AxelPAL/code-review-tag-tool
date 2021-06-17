@@ -22,7 +22,6 @@ class PullRequestsCollectorService implements PullRequestsCollectorServiceInterf
         RepositoriesRepository $repositoriesRepository
     ) {
         $this->bitbucketService = $bitbucketService;
-        $this->bitbucketService->init(BitbucketServiceInterface::ADMIN_USER_ID);
         $this->repositoriesRepository = $repositoriesRepository;
     }
 
@@ -32,6 +31,7 @@ class PullRequestsCollectorService implements PullRequestsCollectorServiceInterf
      */
     public function fetchAllActivePullRequests(): array
     {
+        $this->bitbucketService->init(BitbucketServiceInterface::ADMIN_USER_ID);
         $pullRequests = [];
         $repositories = $this->getAllRepositories();
         foreach ($repositories as $repository) {
@@ -47,6 +47,7 @@ class PullRequestsCollectorService implements PullRequestsCollectorServiceInterf
      */
     public function fetchAllPullRequests(): array
     {
+        $this->bitbucketService->init(BitbucketServiceInterface::ADMIN_USER_ID);
         $pullRequests = [];
         $repositories = $this->getAllRepositories();
         foreach ($repositories as $repository) {

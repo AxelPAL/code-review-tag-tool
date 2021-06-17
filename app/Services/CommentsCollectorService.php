@@ -42,7 +42,6 @@ class CommentsCollectorService implements CommentsCollectorServiceInterface
         $this->repositoriesRepository = $repositoriesRepository;
         $this->pullRequestsRepository = $pullRequestsRepository;
         $this->entitiesFromBitbucketFactory = $entitiesFromBitbucketFactory;
-        $this->bitbucketService->init(BitbucketServiceInterface::ADMIN_USER_ID);
     }
 
     public function collectAllPullRequestsForProcessing(): PullRequestsCollectorDto
@@ -84,6 +83,7 @@ class CommentsCollectorService implements CommentsCollectorServiceInterface
      */
     public function processPullRequest(PullRequestCollectorDto $commentsCollectorPullRequestDto): array
     {
+        $this->bitbucketService->init(BitbucketServiceInterface::ADMIN_USER_ID);
         $processedComments = [];
         $comments = $this->bitbucketService->getAllCommentsOfPullRequest(
             $commentsCollectorPullRequestDto->repository->workspace,
