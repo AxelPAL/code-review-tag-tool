@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  docker:
+  build-app:
     runs-on: ubuntu-latest
     steps:
       -
@@ -29,7 +29,6 @@ jobs:
         with:
           images: |
             axelpal/code-review-tag-tool-app
-            axelpal/code-review-tag-tool-nginx
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -59,7 +58,41 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           file: ./docker/php/Dockerfile
-          platforms: "linux/amd64,linux/arm64,linux/arm/v7"
+#          platforms: "linux/amd64,linux/arm64,linux/arm/v7"
+
+  build-nginx:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            axelpal/code-review-tag-tool-nginx
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to DockerHub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Build and push nginx
         uses: docker/build-push-action@v2
@@ -69,6 +102,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           file: ./docker/nginx/Dockerfile
-          platforms: "linux/amd64,linux/arm64,linux/arm/v7"
+#          platforms: "linux/amd64,linux/arm64,linux/arm/v7"
           build-args: |
-            APP_IMAGE=${{ steps.meta.outputs.labels }}
+            APP_IMAGE=axelpal/code-review-tag-tool-app:${{ github.ref }}
