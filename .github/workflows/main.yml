@@ -8,7 +8,7 @@ on:
     branches:
       - '**'
     tags:
-      - 'v*.*.*'
+      - '*.*.*'
   pull_request:
     branches: [ master ]
 
@@ -59,6 +59,18 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           file: ./docker/php/Dockerfile
           platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: Unit tests
+        uses: addnab/docker-run-action@v3
+        with:
+          image: axelpal/code-review-tag-tool-app:${{ env.GITHUB_REF_SLUG }}
+          run: ./artisan test
+      - name: Static analysis
+        uses: addnab/docker-run-action@v3
+        with:
+          image: axelpal/code-review-tag-tool-app:${{ env.GITHUB_REF_SLUG }}
+          run: ./vendor/bin/phpstan analyse .
 
   build-nginx:
     runs-on: ubuntu-latest
@@ -108,14 +120,3 @@ jobs:
           platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
           build-args: |
             APP_IMAGE=axelpal/code-review-tag-tool-app:${{ env.GITHUB_REF_SLUG }}
-
-  checks:
-    runs-on: ubuntu-latest
-    container: axelpal/code-review-tag-tool-app:${{ env.GITHUB_REF_SLUG }}
-    needs: build-app
-    steps:
-      - name: Unit tests
-        run: ./artisan test
-
-      - name: Static analysis
-        run: ./vendor/bin/phpstan analyse .
