@@ -96,20 +96,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v3.x
-      - name: Print slug/short variables
-        run: |
-          echo "Slug variables"
-          echo " - ${{ env.GITHUB_REF_SLUG }}"
-          echo " - ${{ env.GITHUB_HEAD_REF_SLUG }}"
-          echo " - ${{ env.GITHUB_BASE_REF_SLUG }}"
-          echo " - ${{ env.GITHUB_REPOSITORY_SLUG }}"
-          echo "Slug URL variables"
-          echo " - ${{ env.GITHUB_REF_SLUG_URL }}"
-          echo " - ${{ env.GITHUB_HEAD_REF_SLUG_URL }}"
-          echo " - ${{ env.GITHUB_BASE_REF_SLUG_URL }}"
-          echo " - ${{ env.GITHUB_REPOSITORY_SLUG_URL }}"
-          echo "Short SHA variables"
-          echo " - ${{ env.GITHUB_SHA_SHORT }}"
       -
         name: Build and push nginx
         uses: docker/build-push-action@v2
@@ -121,4 +107,4 @@ jobs:
           file: ./docker/nginx/Dockerfile
 #          platforms: "linux/amd64,linux/arm64,linux/arm/v7"
           build-args: |
-            APP_IMAGE=axelpal/code-review-tag-tool-app:${{ github.ref }}
+            APP_IMAGE=axelpal/code-review-tag-tool-app:${{ env.GITHUB_REF_SLUG }}
