@@ -28,7 +28,8 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            axelpal/code-review-tag-tool
+            axelpal/code-review-tag-tool-app
+            axelpal/code-review-tag-tool-nginx
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -58,6 +59,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           file: ./docker/php/Dockerfile
+          platforms: ["linux/amd64", "linux/arm64","linux/arm/v7"]
       -
         name: Build and push nginx
         uses: docker/build-push-action@v2
@@ -67,3 +69,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           file: ./docker/nginx/Dockerfile
+          platforms: ["linux/amd64", "linux/arm64","linux/arm/v7"]
+          build-args: "APP_IMAGE=${{ steps.meta.outputs.labels }}"
