@@ -27,10 +27,10 @@ class CheckIfAdmin
 
 
     /**
-     * @param $request
+     * @param Request $request
      * @return Application|ResponseFactory|RedirectResponse|Response
      */
-    private function respondToUnauthorizedRequest($request)
+    private function respondToUnauthorizedRequest(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
             return response(trans('backpack::base.unauthorized'), 401);
