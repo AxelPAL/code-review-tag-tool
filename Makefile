@@ -4,6 +4,9 @@ container=app
 up:
 	docker-compose up -d
 
+up-with-db:
+	docker-compose --profile=db up -d
+
 build:
 	docker-compose rm -vsf
 	docker-compose down -v --remove-orphans

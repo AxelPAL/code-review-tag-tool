@@ -15,12 +15,16 @@
                     <x-jet-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-jet-nav-link>
-                    <x-jet-nav-link href="{{ route('workspaces') }}" :active="request()->routeIs('workspaces')">
-                        {{ __('Workspaces') }}
-                    </x-jet-nav-link>
-                    <x-jet-nav-link href="{{ route('report') }}" :active="request()->routeIs('report')">
-                        {{ __('Report') }}
-                    </x-jet-nav-link>
+                    @can(\App\Contracts\Auth\PermissionsInterface::WORKSPACES_PAGE)
+                        <x-jet-nav-link href="{{ route('workspaces') }}" :active="request()->routeIs('workspaces')">
+                            {{ __('Workspaces') }}
+                        </x-jet-nav-link>
+                    @endcan
+                    @can(\App\Contracts\Auth\PermissionsInterface::REPORT_PAGE)
+                        <x-jet-nav-link href="{{ route('report') }}" :active="request()->routeIs('report')">
+                            {{ __('Report') }}
+                        </x-jet-nav-link>
+                    @endcan
                 </div>
             </div>
 

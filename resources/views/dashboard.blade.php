@@ -6,9 +6,14 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 rounded">
+            <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl rounded">
+                <div class="md:flex mx-auto px-4 rounded">
+                    <div class="p-2">
+                        <a href="#" class="block mt-1 text-lg leading-tight font-medium text-black hover:underline">Welcome to Code Review Tag Tool project</a>
+                        <p class="mt-2 text-gray-500">In order to get access to tag report, contact your administrator.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -21,9 +21,6 @@ services:
       - .:/app:delegated
       - ./docker/php/app-entrypoint.sh:/app-entrypoint.sh
       - phpstan_data:/tmp/phpstan:delegated
-    depends_on:
-      - redis
-      - postgres
 
   nginx:
     image: axelpal/code-review-tool-nginx:${IMAGE_TAG:-local}
@@ -46,6 +43,8 @@ services:
   redis:
     image: redis
     tty: true
+    profiles:
+      - db
     volumes:
       - redis_data:/data:delegated
     networks:
@@ -53,6 +52,8 @@ services:
   postgres:
     image: postgres:13-alpine
     tty: true
+    profiles:
+      - db
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     networks:
