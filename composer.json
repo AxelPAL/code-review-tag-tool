@@ -1,11 +1,7 @@
 {
-  "name": "laravel/laravel",
+  "name": "axelpal/code-review-tag-tool",
   "type": "project",
-  "description": "The Laravel Framework.",
-  "keywords": [
-    "framework",
-    "laravel"
-  ],
+  "description": "This instrument is aimed to count specific tags in Pull Request's comments at BitBucket.",
   "license": "MIT",
   "require": {
     "php": "^8.0",
@@ -24,8 +20,7 @@
     "laravel/sanctum": "^2.6",
     "laravel/tinker": "^2.0",
     "livewire/livewire": "^2.0",
-    "spatie/laravel-permission": "^4.2",
-    "squizlabs/php_codesniffer": "*"
+    "spatie/laravel-permission": "^4.2"
   },
   "require-dev": {
     "backpack/generators": "^3.1",
@@ -41,7 +36,8 @@
     "nunomaduro/larastan": "^0.6.9",
     "phpstan/phpstan": "^0.12.52",
     "phpunit/phpunit": "^9.3",
-    "roave/security-advisories": "dev-master"
+    "roave/security-advisories": "dev-latest",
+    "squizlabs/php_codesniffer": "*"
   },
   "config": {
     "optimize-autoloader": true,
