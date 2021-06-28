@@ -185,8 +185,8 @@ class BitbucketService implements BitbucketServiceInterface
     {
         $clientId = $this->settingsService->getBitbucketClientId();
         $clientSecret = $this->settingsService->getBitbucketClientSecret();
-        if ($clientId === null) {
-            throw new LogicException('Bitbucket ClientId isn\'t specified!');
+        if ($clientId === null || $clientSecret === null) {
+            throw new LogicException('Bitbucket secrets are not specified!');
         }
         $response = Http::withBasicAuth($clientId, $clientSecret)
             ->asForm()
