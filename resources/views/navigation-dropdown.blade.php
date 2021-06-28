@@ -59,6 +59,12 @@
                             {{ __('Profile') }}
                         </x-jet-dropdown-link>
 
+                        @can(\App\Contracts\Auth\PermissionsInterface::ADMIN_PANEL_ACCESS)
+                            <x-jet-dropdown-link href="{{ route('backpack') }}">
+                                {{ __('Admin panel') }}
+                            </x-jet-dropdown-link>
+                        @endcan
+
                         @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
                             <x-jet-dropdown-link href="{{ route('api-tokens.index') }}">
                                 {{ __('API Tokens') }}

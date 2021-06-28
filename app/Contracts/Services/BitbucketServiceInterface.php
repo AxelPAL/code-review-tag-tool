@@ -73,4 +73,6 @@ interface BitbucketServiceInterface
     public function updateRemoteUser(array $userInfo): void;
 
     public function init(?int $userId): void;
+
+    public function refreshToken(): void;
 }

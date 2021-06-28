@@ -29,6 +29,8 @@ jobs:
         with:
           images: |
             axelpal/code-review-tag-tool-app
+          flavor: |
+            latest=true
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -83,13 +85,12 @@ jobs:
         with:
           images: |
             axelpal/code-review-tag-tool-nginx
+          flavor: |
+            latest=true
           tags: |
             type=ref,event=branch
             type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
+            type=ref,event=tag
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1

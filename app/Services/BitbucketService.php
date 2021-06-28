@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\Services\BitbucketServiceInterface;
+use App\Exceptions\NoBitbucketSecretsException;
+use App\Exceptions\NoBitbucketTokenException;
 use App\Factories\EntitiesFromBitbucketFactory;
 use App\Models\PullRequest;
 use App\Models\UserBitbucketToken;
-use App\Repositories\UserBitbucketSecretsRepository;
 use App\Repositories\UserBitbucketTokenRepository;
 use Bitbucket\Api\ApiInterface;
 use Bitbucket\Client;
+use Bitbucket\Exception\RuntimeException as BitbucketRuntimeException;
 use Bitbucket\ResultPager;
 use Generator;
 use GrahamCampbell\Bitbucket\BitbucketManager;
@@ -20,7 +22,6 @@ use Http\Client\Exception;
 use Illuminate\Support\Carbon;
 use LogicException;
 use RuntimeException;
-use Bitbucket\Exception\RuntimeException as BitbucketRuntimeException;
 
 class BitbucketService implements BitbucketServiceInterface
 {
@@ -28,7 +29,7 @@ class BitbucketService implements BitbucketServiceInterface
         private BitbucketManager $bitbucket,
         private EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory,
         public UserBitbucketTokenRepository $bitbucketTokenRepository,
-        public UserBitbucketSecretsRepository $userBitbucketSecretsRepository,
+        public SettingsService $settingsService,
     ) {
     }
 
@@ -163,13 +164,13 @@ class BitbucketService implements BitbucketServiceInterface
 
     public function getOAuthCodeUrl(int $userId): string
     {
-        $userSecrets = $this->userBitbucketSecretsRepository->findByUserId($userId);
-        if ($userSecrets === null) {
+        $clientId = $this->settingsService->getBitbucketClientId();
+        if ($clientId === null) {
             $redirectUrl = route('specify-credentials');
         } else {
             $redirectUrl = sprintf(
                 "https://bitbucket.org/site/oauth2/authorize?client_id=%s&response_type=code",
-                $userSecrets->client_id
+                $clientId
             );
         }
         return $redirectUrl;
@@ -182,11 +183,12 @@ class BitbucketService implements BitbucketServiceInterface
      */
     public function getAndSaveOAuthAccessToken(int $userId, string $code): bool
     {
-        $userSecrets = $this->userBitbucketSecretsRepository->findByUserId($userId);
-        if ($userSecrets === null) {
-            throw new LogicException('No user secrets have been found for user' . $userId);
+        $clientId = $this->settingsService->getBitbucketClientId();
+        $clientSecret = $this->settingsService->getBitbucketClientSecret();
+        if ($clientId === null) {
+            throw new LogicException('Bitbucket ClientId isn\'t specified!');
         }
-        $response = Http::withBasicAuth($userSecrets->client_id, $userSecrets->client_secret)
+        $response = Http::withBasicAuth($clientId, $clientSecret)
             ->asForm()
             ->post(
                 'https://bitbucket.org/site/oauth2/access_token',
@@ -249,5 +251,34 @@ class BitbucketService implements BitbucketServiceInterface
                 $userBitbucketToken->access_token
             );
         }
+    }
+
+    public function refreshToken(): void
+    {
+        $clientId = $this->settingsService->getBitbucketClientId();
+        $clientSecret = $this->settingsService->getBitbucketClientSecret();
+        if ($clientId === null || $clientSecret === null) {
+            throw new NoBitbucketSecretsException(
+                'No Bitbucket secrets were specified'
+            );
+        }
+        $userBitbucketToken = $this->bitbucketTokenRepository->findByUserId(BitbucketServiceInterface::ADMIN_USER_ID);
+        if ($userBitbucketToken === null) {
+            throw new NoBitbucketTokenException(
+                'There is no Bitbucket token saved in DB for user ' . BitbucketServiceInterface::ADMIN_USER_ID
+            );
+        }
+
+        $response = Http::withBasicAuth($clientId, $clientSecret)
+            ->asForm()
+            ->post(
+                'https://bitbucket.org/site/oauth2/access_token',
+                [
+                    'grant_type'    => 'refresh_token',
+                    'refresh_token' => $userBitbucketToken->refresh_token,
+                ]
+            );
+        $data = $response->json();
+        $this->saveBitbucketTokenData($data, BitbucketServiceInterface::ADMIN_USER_ID);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,6 +29,9 @@ use Illuminate\Support\Carbon;
  *
  * @property CommentContent $content
  * @property RemoteUser $remoteUser
+ * @property-read Collection|Comment[] $children
+ * @property-read int|null $children_count
+ * @property-read PullRequest $pullRequest
  *
  * @method static Builder|Comment newModelQuery()
  * @method static Builder|Comment newQuery()
@@ -44,6 +48,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Comment whereRemoteId($value)
  * @method static Builder|Comment whereParentId($value)
  * @mixin Eloquent
+ * @method static Builder|Comment whereParentRemoteId($value)
  */
 class Comment extends Model
 {

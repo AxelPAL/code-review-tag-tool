@@ -28,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property int $repository_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read Repository $repository
  * @method static Builder|PullRequest newModelQuery()
  * @method static Builder|PullRequest newQuery()
  * @method static Builder|PullRequest query()

@@ -1,6 +1,7 @@
 <?php
 
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Database\Seeders\SettingsSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,5 +14,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
          $this->call(RolesAndPermissionsSeeder::class);
+         $this->call(SettingsSeeder::class);
     }
 }

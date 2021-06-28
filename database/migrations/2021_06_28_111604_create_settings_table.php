@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserBitbucketSecretsTable extends Migration
+class CreateSettingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class CreateUserBitbucketSecretsTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_bitbucket_secrets', function (Blueprint $table) {
+        Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('client_id');
-            $table->string('client_secret');
+            $table->string('title');
+            $table->text('value')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +28,6 @@ class CreateUserBitbucketSecretsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_bitbucket_secrets');
+        Schema::dropIfExists('settings');
     }
 }
