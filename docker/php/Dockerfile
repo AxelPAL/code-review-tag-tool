@@ -1,5 +1,7 @@
 FROM php:8.0-fpm-alpine
 
+ARG INSTALL_XDEBUG=false
+
 RUN set -ex \
   && apk --no-cache add \
     postgresql-dev bash nodejs npm git autoconf build-base pcre-dev supervisor
@@ -9,7 +11,7 @@ RUN pecl install -o -f redis \
 &&  rm -rf /tmp/pear \
 &&  docker-php-ext-enable redis
 
-RUN if [[ -z "$INSTALL_XDEBUG" ]] ; then pecl install xdebug && docker-php-ext-enable xdebug ; fi
+RUN if [ ${INSTALL_XDEBUG} = true ]; then pecl install xdebug && docker-php-ext-enable xdebug ; fi
 
 # install composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
@@ -32,7 +34,7 @@ RUN chmod +x /app-entrypoint.sh
 
 COPY . /app
 WORKDIR /app
-RUN composer install && rm -rf ~/.composer/cache/
+RUN composer install --optimize-autoloader --no-dev --no-scripts && rm -rf ~/.composer/cache/
 RUN npm i
 
 ENTRYPOINT ["/app-entrypoint.sh"]

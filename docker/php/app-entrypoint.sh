@@ -30,4 +30,6 @@ if [ "${STARTUP_START_CONSUMERS}" = "true" ]; then
     echo "[INFO] consumers processes successfully started";
 fi;
 
+cd "${APP_DIR}" && php artisan optimize
+
 exec "$@";
