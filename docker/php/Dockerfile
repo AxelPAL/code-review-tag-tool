@@ -34,7 +34,7 @@ RUN chmod +x /app-entrypoint.sh
 
 COPY . /app
 WORKDIR /app
-RUN composer install --optimize-autoloader --no-dev --no-scripts && rm -rf ~/.composer/cache/
+RUN composer install && rm -rf ~/.composer/cache/
 RUN npm i
 
 ENTRYPOINT ["/app-entrypoint.sh"]
