@@ -7,7 +7,7 @@ services:
       dockerfile: ./docker/php/Dockerfile
     tty: true
     entrypoint: /wait-for postgres:5432 -t 60 -- /app-entrypoint.sh
-    command: php-fpm -F
+    command: php-fpm -R -F
     environment:
       XDEBUG_CONFIG: ${XDEBUG_CONFIG}
       PHP_IDE_CONFIG: "serverName=code-review-tool"

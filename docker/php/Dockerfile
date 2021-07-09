@@ -38,4 +38,4 @@ RUN composer install && rm -rf ~/.composer/cache/
 RUN npm i
 
 ENTRYPOINT ["/app-entrypoint.sh"]
-CMD ["php-fpm", "-F"]
+CMD ["php-fpm", "-F", "-R"]
