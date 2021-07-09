@@ -31,5 +31,7 @@ if [ "${STARTUP_START_CONSUMERS}" = "true" ]; then
 fi;
 
 cd "${APP_DIR}" && php artisan optimize
+touch "/${APP_DIR}/storage/preload.php"
+chmod -R 664 "/${APP_DIR}/storage" "/${APP_DIR}/bootstrap/cache"
 
 exec "$@";
