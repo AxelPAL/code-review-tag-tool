@@ -32,6 +32,6 @@ fi;
 
 cd "${APP_DIR}" && php artisan optimize
 touch "/${APP_DIR}/storage/preload.php"
-chmod -R 664 "/${APP_DIR}/storage" "/${APP_DIR}/bootstrap/cache"
+chmod -R 755 "/${APP_DIR}/storage" "/${APP_DIR}/bootstrap/cache"
 
 exec "$@";
