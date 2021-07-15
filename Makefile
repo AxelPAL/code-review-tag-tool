@@ -36,6 +36,9 @@ enter:
 tests:
 	docker-compose run --rm --entrypoint "" ${container} ./artisan test
 
+tests-parallel:
+	docker-compose run --rm --entrypoint "" ${container} ./artisan test --parallel
+
 stan:
 	docker-compose run --rm --entrypoint "" ${container} ./vendor/bin/phpstan analyse .
 

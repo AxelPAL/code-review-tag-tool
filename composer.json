@@ -28,6 +28,7 @@
     "barryvdh/laravel-debugbar": "^3.3",
     "barryvdh/laravel-ide-helper": "^2.7",
     "brainmaestro/composer-git-hooks": "^2.8",
+    "brianium/paratest": "^6.3",
     "facade/ignition": "^2.3.6",
     "fzaninotto/faker": "^1.9.1",
     "jetbrains/phpstorm-attributes": "^1.0",
