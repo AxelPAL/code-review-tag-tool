@@ -28,11 +28,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command(RefreshToken::class)->hourly();
         $schedule->command(PullRequests::class, ['--onlyActive'])->everyFourHours();
-        $schedule->command(PullRequests::class)->dailyAt('02:00')->withoutOverlapping();
-        $schedule->command(ParseComments::class)->daily()->withoutOverlapping();
-        $schedule->command(UsersUpdate::class)->dailyAt('15:00')->withoutOverlapping();
-        $schedule->command(RefreshToken::class)->hourly()->withoutOverlapping();
+        $schedule->command(PullRequests::class)->dailyAt('02:00');
+        $schedule->command(ParseComments::class)->daily();
+        $schedule->command(UsersUpdate::class)->dailyAt('15:00');
     }
 
     /**

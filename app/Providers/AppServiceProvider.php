@@ -6,12 +6,14 @@ use App\Contracts\Services\BitbucketServiceInterface;
 use App\Contracts\Services\BitbucketUsersServiceInterface;
 use App\Contracts\Services\CommentsCollectorServiceInterface;
 use App\Contracts\Services\PullRequestsCollectorServiceInterface;
+use App\Contracts\Services\PullRequestsServiceInterface;
 use App\Contracts\Services\ReportAggregatorServiceInterface;
 use App\Contracts\Services\TagParsingServiceInterface;
 use App\Services\BitbucketService;
 use App\Services\BitbucketUsersService;
 use App\Services\CommentsCollectorService;
 use App\Services\PullRequestsCollectorService;
+use App\Services\PullRequestsService;
 use App\Services\ReportAggregatorService;
 use App\Services\TagParsingService;
 use Illuminate\Support\ServiceProvider;
@@ -31,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PullRequestsCollectorServiceInterface::class, PullRequestsCollectorService::class);
         $this->app->bind(ReportAggregatorServiceInterface::class, ReportAggregatorService::class);
         $this->app->bind(TagParsingServiceInterface::class, TagParsingService::class);
+        $this->app->bind(PullRequestsServiceInterface::class, PullRequestsService::class);
     }
 
     /**

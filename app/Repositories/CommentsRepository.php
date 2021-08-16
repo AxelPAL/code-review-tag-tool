@@ -60,7 +60,13 @@ class CommentsRepository
         $commentIds = $commentQuery->pluck('id');
 
         return Comment::with(['remoteUser', 'content', 'children.content', 'children.remoteUser'])
+            ->whereIsDeleted(false)
             ->findMany($commentIds)
             ->toArray();
+    }
+
+    public function getCountByPullRequest(int $pullRequestId): int
+    {
+        return Comment::wherePullRequestId($pullRequestId)->count('id');
     }
 }

@@ -21,6 +21,7 @@ use Http;
 use Http\Client\Exception;
 use Illuminate\Support\Carbon;
 use LogicException;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class BitbucketService implements BitbucketServiceInterface
@@ -30,21 +31,23 @@ class BitbucketService implements BitbucketServiceInterface
         private EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory,
         public UserBitbucketTokenRepository $bitbucketTokenRepository,
         public SettingsService $settingsService,
+        private LoggerInterface $logger
     ) {
     }
 
-    /**
-     * @param string $workspace
-     * @return array
-     * @throws Exception
-     */
     public function getAvailableRepositories(string $workspace): array
     {
         $repositories = [];
-        $query = $this->bitbucket->repositories()->workspaces($workspace);
-        foreach ($this->getAllListPages($query) as $repository) {
-            $this->entitiesFromBitbucketFactory->createRepositoryIfNotExists($repository);
-            $repositories[$repository['slug']] = $repository['name'];
+        $query        = $this->bitbucket->repositories()->workspaces($workspace);
+        try {
+            foreach ($this->getAllListPages($query) as $repository) {
+                $this->entitiesFromBitbucketFactory->createRepositoryIfNotExists($repository);
+                $repositories[$repository['slug']] = $repository['name'];
+            }
+        } catch (Exception $e) {
+            $this->logger->warning($e->getMessage(), [
+                'workspace' => $workspace,
+            ]);
         }
 
         return $repositories;
@@ -58,7 +61,7 @@ class BitbucketService implements BitbucketServiceInterface
      */
     protected function getAllListPages(ApiInterface $query, array $params = []): Generator
     {
-        $client = $this->getBitbucketClient();
+        $client    = $this->getBitbucketClient();
         $paginator = new ResultPager($client);
         return $paginator->fetchAllLazy($query, 'list', [$params]);
     }
@@ -108,23 +111,24 @@ class BitbucketService implements BitbucketServiceInterface
         return $this->getPullRequestsByStates($workspace, $repository, [PullRequest::OPEN_STATE]);
     }
 
-    /**
-     * @param string $workspace
-     * @param string $repository
-     * @param array $states
-     * @return array
-     * @throws Exception
-     */
     protected function getPullRequestsByStates(string $workspace, string $repository, array $states): array
     {
         $pullRequests = [];
         foreach ($states as $state) {
             $query = $this->bitbucket->repositories()
-                ->workspaces($workspace)
-                ->pullRequests($repository);
-            foreach ($this->getAllListPages($query, ['state' => $state]) as $pullRequest) {
-                $this->entitiesFromBitbucketFactory->createPullRequestIfNotExists($pullRequest);
-                $pullRequests[] = $pullRequest;
+                                     ->workspaces($workspace)
+                                     ->pullRequests($repository);
+            try {
+                foreach ($this->getAllListPages($query, ['state' => $state]) as $pullRequest) {
+                    $this->entitiesFromBitbucketFactory->createPullRequestIfNotExists($pullRequest);
+                    $pullRequests[] = $pullRequest;
+                }
+            } catch (Exception $e) {
+                $this->logger->warning($e->getMessage(), [
+                    'workspace'  => $workspace,
+                    'repository' => $repository,
+                    'states'     => $states,
+                ]);
             }
         }
 
@@ -141,25 +145,28 @@ class BitbucketService implements BitbucketServiceInterface
     public function getPullRequestData(string $workspace, string $repository, int $pullRequestId): array
     {
         return $this->bitbucket->repositories()
-            ->workspaces($workspace)
-            ->pullRequests($repository)
-            ->show((string)$pullRequestId);
+                               ->workspaces($workspace)
+                               ->pullRequests($repository)
+                               ->show((string)$pullRequestId);
     }
 
-    /**
-     * @param string $workspace
-     * @param string $repository
-     * @param int $pullRequestId
-     * @return Generator
-     * @throws Exception
-     */
     public function getAllCommentsOfPullRequest(string $workspace, string $repository, int $pullRequestId): Generator
     {
         $commentsClient = $this->bitbucket->repositories()
-            ->workspaces($workspace)
-            ->pullRequests($repository)
-            ->comments((string)$pullRequestId);
-        return $this->getAllListPages($commentsClient);
+                                          ->workspaces($workspace)
+                                          ->pullRequests($repository)
+                                          ->comments((string)$pullRequestId);
+        $return         = null;
+        try {
+            $return = $this->getAllListPages($commentsClient);
+        } catch (Exception $e) {
+            $this->logger->warning($e->getMessage(), [
+                'workspace'     => $workspace,
+                'repository'    => $repository,
+                'pullRequestId' => $pullRequestId,
+            ]);
+        }
+        return $return;
     }
 
     public function getOAuthCodeUrl(int $userId): string
@@ -183,21 +190,21 @@ class BitbucketService implements BitbucketServiceInterface
      */
     public function getAndSaveOAuthAccessToken(int $userId, string $code): bool
     {
-        $clientId = $this->settingsService->getBitbucketClientId();
+        $clientId     = $this->settingsService->getBitbucketClientId();
         $clientSecret = $this->settingsService->getBitbucketClientSecret();
         if ($clientId === null || $clientSecret === null) {
             throw new LogicException('Bitbucket secrets are not specified!');
         }
         $response = Http::withBasicAuth($clientId, $clientSecret)
-            ->asForm()
-            ->post(
-                'https://bitbucket.org/site/oauth2/access_token',
-                [
-                    'grant_type' => 'authorization_code',
-                    'code'       => $code,
-                ]
-            );
-        $data = $response->json();
+                        ->asForm()
+                        ->post(
+                            'https://bitbucket.org/site/oauth2/access_token',
+                            [
+                                'grant_type' => 'authorization_code',
+                                'code'       => $code,
+                            ]
+                        );
+        $data     = $response->json();
         return $this->saveBitbucketTokenData($data, $userId);
     }
 
@@ -229,7 +236,7 @@ class BitbucketService implements BitbucketServiceInterface
     {
         $userBitbucketToken = $this->bitbucketTokenRepository->findByUserId($userId);
         if ($userBitbucketToken === null) {
-            $userBitbucketToken = new UserBitbucketToken();
+            $userBitbucketToken          = new UserBitbucketToken();
             $userBitbucketToken->user_id = $userId;
         }
         $expiresIn = (new Carbon())->addSeconds($data['expires_in']);
@@ -241,7 +248,7 @@ class BitbucketService implements BitbucketServiceInterface
     public function init(?int $userId): void
     {
         if ($userId !== null) {
-            $client = $this->getBitbucketClient();
+            $client             = $this->getBitbucketClient();
             $userBitbucketToken = $this->bitbucketTokenRepository->findByUserId($userId);
             if ($userBitbucketToken === null) {
                 throw new RuntimeException('Token was not present!');
@@ -255,7 +262,7 @@ class BitbucketService implements BitbucketServiceInterface
 
     public function refreshToken(): void
     {
-        $clientId = $this->settingsService->getBitbucketClientId();
+        $clientId     = $this->settingsService->getBitbucketClientId();
         $clientSecret = $this->settingsService->getBitbucketClientSecret();
         if ($clientId === null || $clientSecret === null) {
             throw new NoBitbucketSecretsException(
@@ -270,15 +277,15 @@ class BitbucketService implements BitbucketServiceInterface
         }
 
         $response = Http::withBasicAuth($clientId, $clientSecret)
-            ->asForm()
-            ->post(
-                'https://bitbucket.org/site/oauth2/access_token',
-                [
-                    'grant_type'    => 'refresh_token',
-                    'refresh_token' => $userBitbucketToken->refresh_token,
-                ]
-            );
-        $data = $response->json();
+                        ->asForm()
+                        ->post(
+                            'https://bitbucket.org/site/oauth2/access_token',
+                            [
+                                'grant_type'    => 'refresh_token',
+                                'refresh_token' => $userBitbucketToken->refresh_token,
+                            ]
+                        );
+        $data     = $response->json();
         $this->saveBitbucketTokenData($data, BitbucketServiceInterface::ADMIN_USER_ID);
     }
 }

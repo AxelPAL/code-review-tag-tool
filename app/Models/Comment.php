@@ -47,8 +47,10 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Comment whereWebLink($value)
  * @method static Builder|Comment whereRemoteId($value)
  * @method static Builder|Comment whereParentId($value)
- * @mixin Eloquent
  * @method static Builder|Comment whereParentRemoteId($value)
+ *
+ * @method static Builder|Comment with($value)
+ * @mixin Eloquent
  */
 class Comment extends Model
 {

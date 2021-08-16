@@ -33,6 +33,9 @@ require-dev:
 enter:
 	docker-compose exec ${container} bash
 
+run:
+	docker-compose run --rm --entrypoint "" ${container} bash
+
 tests:
 	docker-compose run --rm --entrypoint "" ${container} ./artisan test
 
