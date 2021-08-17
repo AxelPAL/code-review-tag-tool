@@ -30,6 +30,7 @@ class CommentsRepository
             return $query->whereRemoteAuthorId($remoteUserId);
         })
             ->whereBetween('repository_created_at', [$fromDateString, $toDateString])
+            ->where('isDeleted', '=', false)
             ->get()
             ->lazy();
     }
@@ -60,7 +61,7 @@ class CommentsRepository
         $commentIds = $commentQuery->pluck('id');
 
         return Comment::with(['remoteUser', 'content', 'children.content', 'children.remoteUser'])
-            ->whereIsDeleted(false)
+            ->where('isDeleted', '=', false)
             ->findMany($commentIds)
             ->toArray();
     }

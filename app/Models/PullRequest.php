@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -60,5 +61,15 @@ class PullRequest extends Model
     public function repository(): BelongsTo
     {
         return $this->belongsTo(Repository::class);
+    }
+
+    public function remoteAuthor(): BelongsTo
+    {
+        return $this->belongsTo(RemoteUser::class);
+    }
+
+    public function comment(): HasMany
+    {
+        return $this->hasMany(Comment::class);
     }
 }

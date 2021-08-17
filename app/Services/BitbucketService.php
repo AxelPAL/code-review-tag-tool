@@ -150,13 +150,16 @@ class BitbucketService implements BitbucketServiceInterface
                                ->show((string)$pullRequestId);
     }
 
-    public function getAllCommentsOfPullRequest(string $workspace, string $repository, int $pullRequestId): Generator
-    {
+    public function getAllCommentsOfPullRequest(
+        string $workspace,
+        string $repository,
+        int $pullRequestId
+    ): array|Generator {
         $commentsClient = $this->bitbucket->repositories()
                                           ->workspaces($workspace)
                                           ->pullRequests($repository)
                                           ->comments((string)$pullRequestId);
-        $return         = null;
+        $return = [];
         try {
             $return = $this->getAllListPages($commentsClient);
         } catch (Exception $e) {

@@ -37,10 +37,14 @@ run:
 	docker-compose run --rm --entrypoint "" ${container} bash
 
 tests:
+	docker-compose run --rm --entrypoint "" ${container} ./artisan config:cache --env=testing
 	docker-compose run --rm --entrypoint "" ${container} ./artisan test
+	docker-compose run --rm --entrypoint "" ${container} ./artisan config:cache
 
 tests-parallel:
+	docker-compose run --rm --entrypoint "" ${container} ./artisan config:cache --env=testing
 	docker-compose run --rm --entrypoint "" ${container} ./artisan test --parallel
+	docker-compose run --rm --entrypoint "" ${container} ./artisan config:cache
 
 stan:
 	docker-compose run --rm --entrypoint "" ${container} ./vendor/bin/phpstan analyse .

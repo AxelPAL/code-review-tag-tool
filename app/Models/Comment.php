@@ -61,6 +61,11 @@ class Comment extends Model
         return $this->hasOne(CommentContent::class);
     }
 
+    public function commentContent(): HasOne
+    {
+        return $this->hasOne(CommentContent::class);
+    }
+
     public function pullRequest(): BelongsTo
     {
         return $this->belongsTo(PullRequest::class);

@@ -1,8 +1,5 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
-# Controls when the action will run. 
 on:
   push:
     branches:
@@ -12,7 +9,6 @@ on:
   pull_request:
     branches: [ master ]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -64,7 +60,11 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: axelpal/code-review-tag-tool-app:${{ env.GITHUB_REF_SLUG }}
-          run: mv .env.test .env && ./artisan test
+          run: |
+          cp .env.testing .env
+          ./artisan config:cache --env=testing
+          ./artisan test
+          ./artisan config:cache
       - name: Static analysis
         uses: addnab/docker-run-action@v3
         with:

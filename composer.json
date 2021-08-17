@@ -6,6 +6,7 @@
   "require": {
     "php": "^8.0",
     "ext-json": "*",
+    "ext-pdo": "*",
     "backpack/crud": "^4.1",
     "backpack/permissionmanager": "^6.0",
     "darkghosthunter/laraload": "^2.3",

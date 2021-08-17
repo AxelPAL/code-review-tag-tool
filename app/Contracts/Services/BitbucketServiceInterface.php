@@ -51,10 +51,14 @@ interface BitbucketServiceInterface
      * @param string $workspace
      * @param string $repository
      * @param int $pullRequestId
-     * @return Generator
+     * @return array|Generator
      * @throws Exception
      */
-    public function getAllCommentsOfPullRequest(string $workspace, string $repository, int $pullRequestId): Generator;
+    public function getAllCommentsOfPullRequest(
+        string $workspace,
+        string $repository,
+        int $pullRequestId
+    ): array|Generator;
 
     public function getOAuthCodeUrl(int $userId): string;
 
