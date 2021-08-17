@@ -12,6 +12,7 @@ use App\Models\PullRequest;
 use App\Models\UserBitbucketToken;
 use App\Repositories\UserBitbucketTokenRepository;
 use Bitbucket\Api\ApiInterface;
+use Bitbucket\Api\Repositories\Workspaces;
 use Bitbucket\Client;
 use Bitbucket\Exception\RuntimeException as BitbucketRuntimeException;
 use Bitbucket\ResultPager;
@@ -27,21 +28,21 @@ use RuntimeException;
 class BitbucketService implements BitbucketServiceInterface
 {
     public function __construct(
-        private BitbucketManager $bitbucket,
-        private EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory,
+        public BitbucketManager $bitbucket,
+        public EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory,
         public UserBitbucketTokenRepository $bitbucketTokenRepository,
         public SettingsService $settingsService,
-        private LoggerInterface $logger
+        public LoggerInterface $logger
     ) {
     }
 
     public function getAvailableRepositories(string $workspace): array
     {
         $repositories = [];
-        $query        = $this->bitbucket->repositories()->workspaces($workspace);
+        $query        = $this->getQueryForGettingRepositories($workspace);
         try {
             foreach ($this->getAllListPages($query) as $repository) {
-                $this->entitiesFromBitbucketFactory->createRepositoryIfNotExists($repository);
+                $this->processRepository($repository);
                 $repositories[$repository['slug']] = $repository['name'];
             }
         } catch (Exception $e) {
@@ -51,6 +52,16 @@ class BitbucketService implements BitbucketServiceInterface
         }
 
         return $repositories;
+    }
+
+    protected function getQueryForGettingRepositories(string $workspace): Workspaces
+    {
+        return $this->bitbucket->repositories()->workspaces($workspace);
+    }
+
+    protected function processRepository(array $repository): void
+    {
+        $this->entitiesFromBitbucketFactory->createRepositoryIfNotExists($repository);
     }
 
     /**
@@ -78,11 +89,20 @@ class BitbucketService implements BitbucketServiceInterface
     public function getAvailableWorkspaces(): array
     {
         $workspaces = [];
-        foreach ($this->bitbucket->currentUser()->listWorkspaces()['values'] as $workspace) {
+        foreach ($this->getAllWorkspaces()['values'] as $workspace) {
             $workspaces[(string)$workspace['slug']] = $workspace['name'];
         }
 
         return $workspaces;
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    protected function getAllWorkspaces(): array
+    {
+        return $this->bitbucket->currentUser()->listWorkspaces();
     }
 
     /**
