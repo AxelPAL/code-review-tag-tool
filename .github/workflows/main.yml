@@ -14,6 +14,16 @@ on:
 jobs:
   build-app:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_PASSWORD: ${DB_PASSWORD}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       -
         name: Checkout
@@ -61,10 +71,9 @@ jobs:
         with:
           image: axelpal/code-review-tag-tool-app:${{ env.GITHUB_REF_SLUG }}
           run: |
-            cp .env.testing .env
-            ./artisan config:cache --env=testing
+            cp .env.testing .env &&
+            ./artisan config:cache --env=testing &&
             ./artisan test
-            ./artisan config:cache
       - name: Static analysis
         uses: addnab/docker-run-action@v3
         with:
