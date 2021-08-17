@@ -18,7 +18,9 @@ jobs:
       postgres:
         image: postgres:13-alpine
         env:
-          POSTGRES_PASSWORD: ${DB_PASSWORD}
+          POSTGRES_DB: code-review-tag-tool-test
+          POSTGRES_USER: code-review-tool
+          POSTGRES_PASSWORD: code-review-tool
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
