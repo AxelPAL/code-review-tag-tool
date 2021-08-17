@@ -14,18 +14,6 @@ on:
 jobs:
   build-app:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:13-alpine
-        env:
-          POSTGRES_DB: code-review-tag-tool-test
-          POSTGRES_USER: code-review-tool
-          POSTGRES_PASSWORD: code-review-tool
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       -
         name: Checkout
@@ -68,6 +56,24 @@ jobs:
           platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v3.x
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: build-app
+    services:
+      postgres:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_DB: code-review-tag-tool-test
+          POSTGRES_USER: code-review-tool
+          POSTGRES_PASSWORD: code-review-tool
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
       - name: Unit tests
         uses: addnab/docker-run-action@v3
         with:
@@ -76,6 +82,12 @@ jobs:
             cp .env.testing .env &&
             ./artisan config:cache --env=testing &&
             ./artisan test
+  static-analysis:
+    runs-on: ubuntu-latest
+    needs: build-app
+    steps:
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
       - name: Static analysis
         uses: addnab/docker-run-action@v3
         with:
