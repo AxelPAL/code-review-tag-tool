@@ -61,10 +61,10 @@ jobs:
         with:
           image: axelpal/code-review-tag-tool-app:${{ env.GITHUB_REF_SLUG }}
           run: |
-          cp .env.testing .env
-          ./artisan config:cache --env=testing
-          ./artisan test
-          ./artisan config:cache
+            cp .env.testing .env
+            ./artisan config:cache --env=testing
+            ./artisan test
+            ./artisan config:cache
       - name: Static analysis
         uses: addnab/docker-run-action@v3
         with:
