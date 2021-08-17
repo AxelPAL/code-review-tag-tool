@@ -5,7 +5,7 @@ export TERM=xterm
 if [ $? -ne 0 ]; then
   echo "Fix your code before running tests and commit!"
   echo "Run following command to show in which files you've got problems:"
-  echo "./artisan config:cache --env=testing; ./artisan test; ./artisan config:cache"
+  echo "./artisan config:cache --env=testing && ./artisan test && ./artisan config:cache"
   exit 1;
 fi
 ./vendor/bin/phpstan analyze .
