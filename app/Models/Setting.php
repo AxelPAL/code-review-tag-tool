@@ -34,10 +34,12 @@ class Setting extends Model
 
     public const BITBUCKET_CLIENT_ID_ID = 1;
     public const BITBUCKET_CLIENT_SECRET_ID = 2;
+    public const BITBUCKET_REQUESTS_USER_ID = 3;
 
     public const ALL_SETTINGS = [
         self::BITBUCKET_CLIENT_ID_ID     => 'Bitbucket Client Id',
         self::BITBUCKET_CLIENT_SECRET_ID => 'Bitbucket Client Secret',
+        self::BITBUCKET_REQUESTS_USER_ID => 'Bitbucket requests user id',
     ];
 
     protected $fillable = [

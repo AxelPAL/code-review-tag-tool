@@ -4,44 +4,26 @@ namespace App\Services;
 
 use App\Contracts\Services\BitbucketServiceInterface;
 use App\Contracts\Services\CommentsCollectorServiceInterface;
+use App\Contracts\Services\SettingsServiceInterface;
 use App\Dto\PullRequestCollectorDto;
 use App\Dto\PullRequestsCollectorDto;
 use App\Factories\EntitiesFromBitbucketFactory;
 use App\Models\Comment;
 use App\Repositories\PullRequestsRepository;
 use App\Repositories\RepositoriesRepository;
+use App\Repositories\SettingsRepository;
 use Http\Client\Exception;
 use JsonException;
 
 class CommentsCollectorService implements CommentsCollectorServiceInterface
 {
-    /**
-     * @var BitbucketServiceInterface
-     */
-    private BitbucketServiceInterface $bitbucketService;
-    /**
-     * @var RepositoriesRepository
-     */
-    private RepositoriesRepository $repositoriesRepository;
-    /**
-     * @var PullRequestsRepository
-     */
-    private PullRequestsRepository $pullRequestsRepository;
-    /**
-     * @var EntitiesFromBitbucketFactory
-     */
-    private EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory;
-
     public function __construct(
-        BitbucketServiceInterface $bitbucketService,
-        RepositoriesRepository $repositoriesRepository,
-        PullRequestsRepository $pullRequestsRepository,
-        EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory
+        private BitbucketServiceInterface $bitbucketService,
+        private RepositoriesRepository $repositoriesRepository,
+        private PullRequestsRepository $pullRequestsRepository,
+        private EntitiesFromBitbucketFactory $entitiesFromBitbucketFactory,
+        private SettingsServiceInterface $settingsService
     ) {
-        $this->bitbucketService = $bitbucketService;
-        $this->repositoriesRepository = $repositoriesRepository;
-        $this->pullRequestsRepository = $pullRequestsRepository;
-        $this->entitiesFromBitbucketFactory = $entitiesFromBitbucketFactory;
     }
 
     public function collectAllPullRequestsForProcessing(): PullRequestsCollectorDto
@@ -83,7 +65,7 @@ class CommentsCollectorService implements CommentsCollectorServiceInterface
      */
     public function processPullRequest(PullRequestCollectorDto $commentsCollectorPullRequestDto): array
     {
-        $this->bitbucketService->init(BitbucketServiceInterface::ADMIN_USER_ID);
+        $this->bitbucketService->init($this->settingsService->getBitbucketRequestsUserId());
         $processedComments = [];
         $comments = $this->bitbucketService->getAllCommentsOfPullRequest(
             $commentsCollectorPullRequestDto->repository->workspace,

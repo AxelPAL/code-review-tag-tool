@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\Services\BitbucketServiceInterface;
 use App\Contracts\Services\PullRequestsCollectorServiceInterface;
+use App\Contracts\Services\SettingsServiceInterface;
 use App\Models\Repository;
 use App\Repositories\RepositoriesRepository;
 use Http\Client\Exception;
@@ -11,18 +12,11 @@ use Illuminate\Database\Eloquent\Collection;
 
 class PullRequestsCollectorService implements PullRequestsCollectorServiceInterface
 {
-    private BitbucketServiceInterface $bitbucketService;
-    /**
-     * @var RepositoriesRepository
-     */
-    private RepositoriesRepository $repositoriesRepository;
-
     public function __construct(
-        BitbucketServiceInterface $bitbucketService,
-        RepositoriesRepository $repositoriesRepository
+        private BitbucketServiceInterface $bitbucketService,
+        private RepositoriesRepository $repositoriesRepository,
+        private SettingsServiceInterface $settingsService
     ) {
-        $this->bitbucketService = $bitbucketService;
-        $this->repositoriesRepository = $repositoriesRepository;
     }
 
     /**
@@ -31,7 +25,7 @@ class PullRequestsCollectorService implements PullRequestsCollectorServiceInterf
      */
     public function fetchAllActivePullRequests(): array
     {
-        $this->bitbucketService->init(BitbucketServiceInterface::ADMIN_USER_ID);
+        $this->bitbucketService->init($this->settingsService->getBitbucketRequestsUserId());
         $pullRequests = [];
         $repositories = $this->getAllRepositories();
         foreach ($repositories as $repository) {
@@ -47,7 +41,7 @@ class PullRequestsCollectorService implements PullRequestsCollectorServiceInterf
      */
     public function fetchAllPullRequests(): array
     {
-        $this->bitbucketService->init(BitbucketServiceInterface::ADMIN_USER_ID);
+        $this->bitbucketService->init($this->settingsService->getBitbucketRequestsUserId());
         $pullRequests = [];
         $repositories = $this->getAllRepositories();
         foreach ($repositories as $repository) {

@@ -105,12 +105,6 @@ class BitbucketService implements BitbucketServiceInterface
         return $this->bitbucket->currentUser()->listWorkspaces();
     }
 
-    /**
-     * @param string $workspace
-     * @param string $repository
-     * @return array
-     * @throws Exception
-     */
     public function getPullRequests(string $workspace, string $repository): array
     {
         $states = [
@@ -120,12 +114,6 @@ class BitbucketService implements BitbucketServiceInterface
         return $this->getPullRequestsByStates($workspace, $repository, $states);
     }
 
-    /**
-     * @param string $workspace
-     * @param string $repository
-     * @return array
-     * @throws Exception
-     */
     public function getActivePullRequests(string $workspace, string $repository): array
     {
         return $this->getPullRequestsByStates($workspace, $repository, [PullRequest::OPEN_STATE]);

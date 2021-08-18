@@ -24,4 +24,9 @@ class SettingsService implements SettingsServiceInterface
     {
         return $this->settingsRepository->findById(Setting::BITBUCKET_CLIENT_SECRET_ID)?->value;
     }
+
+    public function getBitbucketRequestsUserId(): ?int
+    {
+        return (int)$this->settingsRepository->findById(Setting::BITBUCKET_REQUESTS_USER_ID)?->value;
+    }
 }
