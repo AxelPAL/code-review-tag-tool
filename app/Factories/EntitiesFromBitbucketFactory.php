@@ -19,50 +19,15 @@ use Throwable;
 
 class EntitiesFromBitbucketFactory
 {
-    /**
-     * @var RepositoriesRepository
-     */
-    private RepositoriesRepository $repositoriesRepository;
-
-    /**
-     * @var PullRequestsRepository
-     */
-    private PullRequestsRepository $pullRequestsRepository;
-
-    /**
-     * @var CommentsRepository
-     */
-    private CommentsRepository $commentsRepository;
-
-    /**
-     * @var CommentContentsRepository
-     */
-
-    private CommentContentsRepository $commentContentsRepository;
-    /**
-     * @var RemoteUsersRepository
-     */
-    private RemoteUsersRepository $remoteUsersRepository;
-
-    /**
-     * @var TagParsingServiceInterface
-     */
-    private TagParsingServiceInterface $tagParsingService;
 
     public function __construct(
-        RepositoriesRepository $repositoriesRepository,
-        PullRequestsRepository $pullRequestsRepository,
-        CommentsRepository $commentsRepository,
-        CommentContentsRepository $commentContentsRepository,
-        RemoteUsersRepository $remoteUsersRepository,
-        TagParsingServiceInterface $tagParsingService
+        private RepositoriesRepository $repositoriesRepository,
+        private PullRequestsRepository $pullRequestsRepository,
+        private CommentsRepository $commentsRepository,
+        private CommentContentsRepository $commentContentsRepository,
+        private RemoteUsersRepository $remoteUsersRepository,
+        private TagParsingServiceInterface $tagParsingService
     ) {
-        $this->repositoriesRepository = $repositoriesRepository;
-        $this->pullRequestsRepository = $pullRequestsRepository;
-        $this->commentsRepository = $commentsRepository;
-        $this->commentContentsRepository = $commentContentsRepository;
-        $this->remoteUsersRepository = $remoteUsersRepository;
-        $this->tagParsingService = $tagParsingService;
     }
 
     public function createRepositoryIfNotExists(array $bitbucketApiData): Repository
@@ -92,14 +57,16 @@ class EntitiesFromBitbucketFactory
 
     public function createPullRequestIfNotExists(array $bitbucketApiData): PullRequest
     {
-        $pullRequest = $this->pullRequestsRepository->findByRemoteId($bitbucketApiData['id']);
+        $pullRequestWebLink = $bitbucketApiData['links']['self']['href'];
+        $pullRequest = $this->pullRequestsRepository->findByWebLink($pullRequestWebLink);
         if ($pullRequest === null) {
-            $destination = $bitbucketApiData['destination'];
             $pullRequest = new PullRequest();
-            $pullRequest->web_link = $bitbucketApiData['links']['self']['href'];
+            $pullRequest->web_link = $pullRequestWebLink;
             $pullRequest->title = $bitbucketApiData['title'];
             $pullRequest->description = $bitbucketApiData['description'];
             $pullRequest->remote_id = $bitbucketApiData['id'];
+            $destination = $bitbucketApiData['destination'];
+            $repository = $this->findRepositoryByBitbucketResponseDestination($destination);
             $pullRequest->destination_branch = $destination['branch']['name'];
             $pullRequest->destination_commit = $destination['commit']['hash'];
             $pullRequest->repository_created_at = $bitbucketApiData['created_on'];
@@ -107,16 +74,11 @@ class EntitiesFromBitbucketFactory
             $pullRequest->comment_count = $bitbucketApiData['comment_count'];
             $pullRequest->state = $bitbucketApiData['state'];
             $remoteAuthor = $this->createRemoteUserIfNotExists($bitbucketApiData['author']);
-            if ($remoteAuthor !== null) {
-                $pullRequest->remote_author_id = $remoteAuthor->id;
-            }
+            $pullRequest->remote_author_id = $remoteAuthor->id;
             if (!empty($bitbucketApiData['closed_by'])) {
                 $closedByUser = $this->createRemoteUserIfNotExists($bitbucketApiData['closed_by']);
-                if ($closedByUser !== null) {
-                    $pullRequest->closed_by_remote_user_id = $closedByUser->id;
-                }
+                $pullRequest->closed_by_remote_user_id = $closedByUser->id;
             }
-            $repository = $this->repositoriesRepository->findByUUID($destination['repository']['uuid']);
             if ($repository !== null) {
                 $pullRequest->repository_id = $repository->id;
             }
@@ -145,7 +107,8 @@ class EntitiesFromBitbucketFactory
         }
         $comment->remote_user_id = $remoteUser->id;
         $comment->isDeleted = $bitbucketApiData['deleted'];
-        $pullRequest = $this->pullRequestsRepository->findByRemoteId($bitbucketApiData['pullrequest']['id']);
+        $pullRequestWebLink = $bitbucketApiData['pullrequest']['links']['self']['href'];
+        $pullRequest = $this->pullRequestsRepository->findByWebLink($pullRequestWebLink);
         if ($pullRequest !== null) {
             $comment->pull_request_id = $pullRequest->id;
         }
@@ -232,5 +195,10 @@ class EntitiesFromBitbucketFactory
             ]);
         }
         return $saved;
+    }
+    private function findRepositoryByBitbucketResponseDestination(array $destination): ?Repository
+    {
+        $repositoryUuid = $destination['repository']['uuid'];
+        return $this->repositoriesRepository->findByUUID($repositoryUuid);
     }
 }

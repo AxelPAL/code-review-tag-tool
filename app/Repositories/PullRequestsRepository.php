@@ -30,8 +30,8 @@ class PullRequestsRepository
         return PullRequest::whereRepositoryId($repositoryId)->whereState(PullRequest::OPEN_STATE)->getModels();
     }
 
-    public function findByRemoteId(int $remoteId): ?PullRequest
+    public function findByWebLink(string $webLink): ?PullRequest
     {
-        return PullRequest::whereRemoteId($remoteId)->first();
+        return PullRequest::whereWebLink($webLink)->first();
     }
 }

@@ -18,7 +18,7 @@ if [[ $phpFilesCount = 0 ]]; then
 	exit 0;
 fi
 
-TERM=xterm ./vendor/bin/phpcs $args $commitFiles
+TERM=xterm ./vendor/bin/phpcs $args $phpFiles
 
 if [ $? -ne 0 ]; then
   echo "Fix the style problems in your code before commit!"
